@@ -1,0 +1,26 @@
+<?php
+/**
+ * api/config.php
+ * =============================================================================
+ * User-editable configuration for the Race Day Timetable API.
+ *
+ * SETUP: Edit the constants below to match your environment.
+ * This file is excluded from version control (.gitignore) so credentials
+ * are never committed.  Copy api/config.php.example to get started.
+ * =============================================================================
+ */
+
+// ---------------------------------------------------------------------------
+// Database connection
+// ---------------------------------------------------------------------------
+define('DB_DSN',  'mysql:host=localhost;port=3306;dbname=raceday_timetable;charset=utf8mb4');
+define('DB_USER', 'raceday');          // MySQL user
+define('DB_PASS', 'changeme');         // MySQL password
+
+// ---------------------------------------------------------------------------
+// Operations PIN
+// Protects all write operations (create / edit / delete).
+// The ops clerk enters this once per browser session.
+// Viewers of the timetable never need it.
+// ---------------------------------------------------------------------------
+define('OPS_PIN', '1234');

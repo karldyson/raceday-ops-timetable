@@ -1,0 +1,892 @@
+/* =============================================================================
+   Race Day Operations Timetable — Stylesheet
+   =============================================================================
+   Designed for readability in a range of lighting conditions (bright pitlane
+   office, dark media centre, tablet in direct sunlight).
+   High-contrast text, clearly differentiated row states, prominent status
+   indicators.
+   ============================================================================= */
+
+/* ---------------------------------------------------------------------------
+   Design tokens (CSS custom properties)
+   --------------------------------------------------------------------------- */
+:root {
+    /* Brand — Motorsport UK */
+    --clr-primary:        #002f7a;   /* Motorsport UK blue */
+    --clr-primary-dark:   #001c50;
+    --clr-primary-mid:    #1a4a9e;
+    --clr-primary-light:  #eef2f9;
+    --clr-accent:         #cc1111;   /* racing red accent */
+
+    /* Status colours */
+    --clr-success:        #167a3a;
+    --clr-success-bg:     #d6f0e0;
+    --clr-warning:        #7a5400;
+    --clr-warning-bg:     #fff0c0;
+    --clr-danger:         #9b1b1b;
+    --clr-danger-bg:      #fde8e8;
+    --clr-info:           #0b5265;
+    --clr-info-bg:        #d0eaf4;
+    --clr-curfew:         #7c4700;
+    --clr-curfew-bg:      #ffeeba;
+
+    /* Neutrals */
+    --clr-text:           #161b25;
+    --clr-text-muted:     #68717d;
+    --clr-border:         #d0d6e0;
+    --clr-border-light:   #e8ecf2;
+    --clr-bg:             #f0f3f8;
+    --clr-white:          #ffffff;
+    --clr-row-done:       #f3f5f9;
+    --clr-row-cancelled:  #ebebef;
+
+    /* Typography */
+    --font-sans:    'Barlow', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-display: 'Barlow Semi Condensed', 'Barlow', sans-serif;
+    --font-mono:    'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+
+    /* Sizing */
+    --radius:    5px;
+    --radius-lg: 10px;
+    --shadow:    0 1px 4px rgba(0,20,60,.10), 0 1px 2px rgba(0,20,60,.06);
+    --shadow-md: 0 3px 10px rgba(0,20,60,.12), 0 1px 3px rgba(0,20,60,.08);
+    --shadow-lg: 0 8px 28px rgba(0,20,60,.18), 0 2px 6px rgba(0,20,60,.10);
+}
+
+/* ---------------------------------------------------------------------------
+   Base reset
+   --------------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 15px; }
+
+body {
+    font-family: var(--font-sans);
+    background: var(--clr-bg);
+    color: var(--clr-text);
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+/* ---------------------------------------------------------------------------
+   Header bar — event name, circuit, date, live clock
+   --------------------------------------------------------------------------- */
+#header-bar {
+    background: var(--clr-primary);
+    color: var(--clr-white);
+    padding: .65rem 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+    flex-wrap: wrap;
+    border-top: 3px solid var(--clr-accent);
+    box-shadow: 0 2px 8px rgba(0,20,60,.25);
+    position: relative;
+}
+
+#header-bar h1 {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#header-bar .header-meta {
+    font-family: var(--font-display);
+    font-size: .82rem;
+    font-weight: 600;
+    letter-spacing: .03em;
+    opacity: .78;
+    white-space: nowrap;
+}
+
+#clock {
+    font-family: var(--font-mono);
+    font-size: 1.35rem;
+    font-weight: 500;
+    letter-spacing: .08em;
+    white-space: nowrap;
+    background: rgba(255,255,255,.1);
+    padding: .2rem .6rem;
+    border-radius: var(--radius);
+    border: 1px solid rgba(255,255,255,.15);
+}
+
+/* ---------------------------------------------------------------------------
+   Status banners — running variance and curfew countdown
+   --------------------------------------------------------------------------- */
+#status-bar {
+    display: flex;
+    gap: .6rem;
+    padding: .5rem 1.4rem;
+    background: var(--clr-white);
+    border-bottom: 1px solid var(--clr-border);
+    flex-wrap: wrap;
+    align-items: center;
+    box-shadow: 0 1px 0 var(--clr-border-light);
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .25rem .8rem;
+    border-radius: 4px;
+    font-family: var(--font-display);
+    font-size: .82rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    border: 1.5px solid transparent;
+}
+
+/* Variance pill colour states */
+.status-pill.on-time    { background: var(--clr-success-bg); color: var(--clr-success);  border-color: var(--clr-success); }
+.status-pill.late-minor { background: var(--clr-warning-bg); color: var(--clr-warning);  border-color: var(--clr-warning); }
+.status-pill.late-major { background: var(--clr-danger-bg);  color: var(--clr-danger);   border-color: var(--clr-danger);  }
+.status-pill.early      { background: var(--clr-info-bg);    color: var(--clr-info);     border-color: var(--clr-info);    }
+.status-pill.neutral    { background: #ebedf2;               color: var(--clr-text-muted); border-color: #c0c6d0; }
+
+/* Curfew pill colour states */
+.curfew-pill            { background: var(--clr-primary-light); color: var(--clr-primary); border: 1.5px solid var(--clr-primary-mid); }
+.curfew-pill.warn       { background: var(--clr-curfew-bg);    color: var(--clr-curfew);   border-color: var(--clr-curfew); }
+.curfew-pill.danger     { background: var(--clr-danger-bg);    color: var(--clr-danger);   border-color: var(--clr-danger); }
+
+/* ---------------------------------------------------------------------------
+   Controls bar — event selector, ops mode toggle, nav links
+   --------------------------------------------------------------------------- */
+#controls-bar {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .5rem 1.4rem;
+    background: var(--clr-white);
+    border-bottom: 2px solid var(--clr-border);
+    flex-wrap: wrap;
+}
+
+#controls-bar label {
+    font-family: var(--font-display);
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--clr-text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   Buttons
+   --------------------------------------------------------------------------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .38rem .8rem;
+    border-radius: var(--radius);
+    font-family: var(--font-display);
+    font-size: .82rem;
+    font-weight: 700;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: background .12s, color .12s, border-color .12s, box-shadow .12s;
+    text-decoration: none;
+    white-space: nowrap;
+    line-height: 1.4;
+}
+
+.btn-primary  {
+    background: var(--clr-primary);
+    color: var(--clr-white);
+    border-color: var(--clr-primary);
+}
+.btn-primary:hover {
+    background: var(--clr-primary-dark);
+    border-color: var(--clr-primary-dark);
+    box-shadow: 0 2px 6px rgba(0,20,80,.2);
+}
+
+.btn-secondary {
+    background: var(--clr-white);
+    color: var(--clr-primary);
+    border-color: var(--clr-primary-mid);
+}
+.btn-secondary:hover {
+    background: var(--clr-primary-light);
+    border-color: var(--clr-primary);
+}
+
+.btn-success  { background: var(--clr-success); color: var(--clr-white); border-color: var(--clr-success); }
+.btn-success:hover { filter: brightness(.9); box-shadow: 0 2px 6px rgba(0,80,40,.2); }
+
+.btn-danger   { background: var(--clr-danger); color: var(--clr-white); border-color: var(--clr-danger); }
+.btn-danger:hover { filter: brightness(.9); }
+
+.btn-warning  { background: #e6a800; color: #1a1000; border-color: #c89200; }
+.btn-warning:hover { filter: brightness(.95); }
+
+.btn-sm {
+    padding: .2rem .5rem;
+    font-size: .75rem;
+    letter-spacing: .02em;
+}
+
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Ops mode active indicator */
+#btn-ops-mode.active {
+    background: var(--clr-success);
+    color: var(--clr-white);
+    border-color: var(--clr-success);
+}
+
+/* ---------------------------------------------------------------------------
+   Form controls
+   --------------------------------------------------------------------------- */
+select, input[type="text"], input[type="date"], input[type="time"],
+input[type="number"], textarea {
+    font-family: var(--font-sans);
+    font-size: .9rem;
+    padding: .38rem .6rem;
+    border: 1.5px solid var(--clr-border);
+    border-radius: var(--radius);
+    background: var(--clr-white);
+    color: var(--clr-text);
+    width: 100%;
+    transition: border-color .12s, box-shadow .12s;
+}
+
+select:focus, input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--clr-primary-mid);
+    box-shadow: 0 0 0 3px rgba(0,47,122,.12);
+}
+
+textarea { resize: vertical; min-height: 60px; }
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: .75rem;
+    margin-bottom: .75rem;
+}
+
+.form-group { display: flex; flex-direction: column; gap: .25rem; }
+.form-group label {
+    font-family: var(--font-display);
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--clr-text-muted);
+}
+.form-group.checkbox { flex-direction: row; align-items: center; gap: .5rem; }
+.form-group.checkbox label {
+    font-size: .88rem;
+    color: var(--clr-text);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+}
+.form-group.checkbox input[type="checkbox"] { width: auto; }
+
+/* ---------------------------------------------------------------------------
+   Main timetable table
+   --------------------------------------------------------------------------- */
+#timetable-wrapper {
+    overflow-x: auto;
+    padding: 1rem 1.4rem;
+}
+
+#timetable {
+    width: 100%;
+    min-width: 1080px;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: .8rem;
+    box-shadow: var(--shadow-md);
+    background: var(--clr-white);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+/* ---- Column-group header colours ---- */
+:root {
+    --grp-sched:    #1a3f8f;   /* darker blue — scheduled */
+    --grp-override: #2a5a60;   /* teal        — clerk overrides */
+    --grp-actual:   #196040;   /* dark green  — actual entered */
+    --grp-advised:  #7a5400;   /* amber       — advised (derived) */
+    --grp-pred:     #4a0d7a;   /* purple      — predicted */
+    --grp-gap:      #2a3a50;   /* dark slate  — gap/variance */
+}
+
+/* Row 1 group-spanning headers */
+#timetable thead th.th-group {
+    font-size: .68rem;
+    letter-spacing: .1em;
+    padding: .4rem .4rem;
+    border-bottom: 1px solid rgba(255,255,255,.15);
+}
+#timetable thead .th-group-sched    { background: var(--grp-sched);    }
+#timetable thead .th-group-override { background: var(--grp-override); }
+#timetable thead .th-group-actual   { background: var(--grp-actual);   }
+#timetable thead .th-group-advised  { background: var(--grp-advised);  }
+#timetable thead .th-group-pred     { background: var(--grp-pred);     }
+#timetable thead .th-group-gap      { background: var(--grp-gap);      }
+
+/* Row 2 sub-headers (tighter padding) */
+#timetable thead tr:nth-child(2) th {
+    font-size: .65rem;
+    padding: .3rem .35rem;
+    border-top: 1px solid rgba(255,255,255,.12);
+    vertical-align: middle;
+}
+/* Sub-header group colouring (slightly lighter than group row) */
+#timetable thead tr:nth-child(2) .th-group-sched    { background: color-mix(in srgb, var(--grp-sched)    70%, var(--clr-primary)); }
+#timetable thead tr:nth-child(2) .th-group-override { background: color-mix(in srgb, var(--grp-override) 70%, var(--clr-primary)); }
+#timetable thead tr:nth-child(2) .th-group-actual   { background: color-mix(in srgb, var(--grp-actual)   70%, var(--clr-primary)); }
+#timetable thead tr:nth-child(2) .th-group-advised  { background: color-mix(in srgb, var(--grp-advised)  70%, var(--clr-primary)); }
+#timetable thead tr:nth-child(2) .th-group-pred     { background: color-mix(in srgb, var(--grp-pred)     70%, var(--clr-primary)); }
+#timetable thead tr:nth-child(2) .th-group-gap      { background: color-mix(in srgb, var(--grp-gap)      70%, var(--clr-primary)); }
+
+/* Header row base */
+#timetable thead th {
+    background: var(--clr-primary);
+    color: rgba(255,255,255,.92);
+    font-family: var(--font-display);
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: .55rem .45rem;
+    text-align: center;
+    white-space: nowrap;
+    border-right: 1px solid rgba(255,255,255,.1);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* ---- Column widths ---- */
+#timetable .col-num         { width: 2rem;  text-align: center; }
+#timetable .col-series      { width: 10rem; text-align: left; }
+#timetable .col-session     { width: 4rem;  text-align: center; }
+#timetable .col-flags       { width: 8rem;  white-space: normal; line-height: 1.7; }
+#timetable .col-mins        { width: 2.6rem; }
+/* Scheduled */
+#timetable .col-sched-start  { width: 3.2rem; }
+#timetable .col-sched-finish { width: 3.2rem; }
+#timetable .col-sched-tidy   { width: 2.6rem; }
+/* Override */
+#timetable .col-dur-ovr      { width: 3.5rem; }
+#timetable .col-tidy-ovr     { width: 3.5rem; }
+/* Actual */
+#timetable .col-act-grid     { width: 3.2rem; }
+#timetable .col-act-gfl      { width: 3.2rem; }
+#timetable .col-act-start    { width: 3.2rem; }
+#timetable .col-act-finish   { width: 3.2rem; }
+/* Advised */
+#timetable .col-adv-grid     { width: 3.2rem; }
+#timetable .col-adv-gfl      { width: 3.2rem; }
+/* Predicted */
+#timetable .col-pred-start   { width: 3.2rem; }
+#timetable .col-pred-finish  { width: 3.2rem; }
+/* Gap */
+#timetable .col-var          { width: 2.6rem; font-family: var(--font-mono); font-weight: 600; }
+#timetable .col-slip         { width: 2.4rem; font-family: var(--font-mono); }
+#timetable .col-diff         { width: 2.4rem; font-family: var(--font-mono); }
+/* Status */
+#timetable .col-status       { width: 5.2rem; }
+
+/* Time-value columns: monospace font */
+#timetable .col-sched-start,
+#timetable .col-sched-finish,
+#timetable .col-act-grid,
+#timetable .col-act-gfl,
+#timetable .col-act-start,
+#timetable .col-act-finish,
+#timetable .col-adv-grid,
+#timetable .col-adv-gfl,
+#timetable .col-pred-start,
+#timetable .col-pred-finish {
+    font-family: var(--font-mono);
+    font-size: .78rem;
+}
+
+/* Data cells */
+#timetable tbody td {
+    padding: .45rem .4rem;
+    border-bottom: 1px solid var(--clr-border-light);
+    border-right: 1px solid var(--clr-border-light);
+    vertical-align: middle;
+    text-align: center;
+    white-space: nowrap;
+}
+
+#timetable tbody td:last-child { border-right: none; }
+#timetable tbody tr:last-child td { border-bottom: none; }
+
+#timetable tbody td.col-series  { text-align: left; }
+#timetable tbody td.col-session { text-align: center; }
+
+/* Subtle left-border separators between column groups */
+#timetable tbody .col-mins,
+#timetable tbody .col-dur-ovr,
+#timetable tbody .col-act-grid,
+#timetable tbody .col-adv-grid,
+#timetable tbody .col-pred-start,
+#timetable tbody .col-var,
+#timetable tbody .col-status {
+    border-left: 1px solid var(--clr-border);
+}
+
+/* Strikethrough style for overridden planned values */
+.plan-val {
+    text-decoration: line-through;
+    color: var(--clr-text-muted);
+    font-size: .73rem;
+    margin-right: .25rem;
+}
+
+/* N/A cell style */
+.na-val { color: var(--clr-text-muted); }
+
+/* Row colour states */
+tr.row-completed   { background: var(--clr-row-done); color: var(--clr-text-muted); }
+tr.row-active      { background: var(--clr-success-bg); }
+tr.row-cancelled   { background: var(--clr-row-cancelled); text-decoration: line-through; color: var(--clr-text-muted); }
+tr.row-red-flagged { background: var(--clr-danger-bg); }
+
+
+/* Diff cell span colours (Late = amber, Early/under = muted green) */
+
+/* Active row left border accent */
+tr.row-active td:first-child {
+    border-left: 4px solid var(--clr-success);
+    padding-left: calc(.55rem - 2px);
+}
+
+/* Predicted times */
+.pred-time { font-style: italic; color: var(--clr-text-muted); font-size: .8rem; }
+.pred-time.late  { color: var(--clr-danger); font-style: italic; }
+.pred-time.early { color: var(--clr-info);   font-style: italic; }
+
+/* ---------------------------------------------------------------------------
+   Badges — GFL / start-type / pit-stop chips
+   --------------------------------------------------------------------------- */
+.badge {
+    display: inline-block;
+    padding: .1rem .38rem;
+    border-radius: 3px;
+    font-family: var(--font-display);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.badge-standing { background: #d6f0e0; color: #135c2c; }
+.badge-rolling  { background: #d0eaf4; color: #0b5265; }
+.badge-yes      { background: #fff0c0; color: #7a5400; }
+.badge-weather  { background: var(--clr-warning-bg); color: var(--clr-warning); }
+
+/* Session status chip */
+.status-chip {
+    display: inline-block;
+    padding: .14rem .48rem;
+    border-radius: 4px;
+    font-family: var(--font-display);
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.chip-pending    { background: #e8eaf0; color: #505870; }
+.chip-active     { background: var(--clr-success-bg); color: var(--clr-success); }
+.chip-completed  { background: #dce8f7; color: #194880; }
+.chip-red-flagged{ background: var(--clr-danger-bg); color: var(--clr-danger); }
+.chip-cancelled  { background: var(--clr-row-cancelled); color: var(--clr-text-muted); }
+
+/* ---------------------------------------------------------------------------
+   Inline ops editing
+   --------------------------------------------------------------------------- */
+.ops-field { display: none; }
+
+body.ops-active .ops-field {
+    display: block;
+    margin-top: .25rem;
+    font-size: .8rem;
+    padding: .2rem .3rem;
+    border: 1.5px solid var(--clr-border);
+    border-radius: var(--radius);
+    background: var(--clr-white);
+    color: var(--clr-text);
+    width: 100%;
+    max-width: 90px;
+}
+
+body.ops-active .ops-field:focus {
+    border-color: var(--clr-primary-mid);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0,47,122,.1);
+}
+
+/* Duration override input */
+body.ops-active .ops-dur-field { max-width: 70px; }
+
+/* Actual time columns: input + ⏱ button sit side-by-side on one line.
+   Override the default block display so the row height stays tight. */
+body.ops-active td.col-act-grid input[type="time"],
+body.ops-active td.col-act-gfl  input[type="time"],
+body.ops-active td.col-act-start  input[type="time"],
+body.ops-active td.col-act-finish input[type="time"] {
+    display: inline-block;
+    width: auto;
+    margin-top: 0;
+    vertical-align: middle;
+}
+body.ops-active td.col-act-grid,
+body.ops-active td.col-act-gfl,
+body.ops-active td.col-act-start,
+body.ops-active td.col-act-finish {
+    white-space: nowrap;
+}
+
+/* "Set to now" clock button beside each time input */
+.btn-now {
+    display: none;
+}
+body.ops-active .btn-now {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    max-width: none;
+    margin-top: 0;
+    margin-left: .15rem;
+    padding: 0 .25rem;
+    background: none;
+    border: 1px solid var(--clr-border);
+    border-radius: 3px;
+    color: var(--clr-text-muted);
+    font-size: .75rem;
+    line-height: 1.6;
+    cursor: pointer;
+    vertical-align: middle;
+}
+body.ops-active .btn-now:hover {
+    background: var(--clr-border);
+    color: var(--clr-text);
+}
+
+/* Status select */
+body.ops-active .ops-status-select { max-width: 100px; width: 100px; }
+
+/* Display values remain visible above their inputs in ops mode */
+body.ops-active td .cell-disp {
+    display: block;
+    font-size: .72rem;
+    color: var(--clr-text-muted);
+    margin-bottom: .15rem;
+    line-height: 1.3;
+}
+
+/* Override and Actual columns: show only the input in ops mode — the input
+   is pre-populated with the current value so no separate display is needed */
+body.ops-active td.col-dur-ovr   .cell-disp,
+body.ops-active td.col-tidy-ovr  .cell-disp,
+body.ops-active td.col-act-grid  .cell-disp,
+body.ops-active td.col-act-gfl   .cell-disp,
+body.ops-active td.col-act-start .cell-disp,
+body.ops-active td.col-act-finish .cell-disp { display: none; }
+
+/* Ops controls column */
+.col-ops { padding: 0 !important; overflow: hidden; width: 0; border: none !important; }
+body.ops-active .col-ops {
+    width: auto;
+    padding: .35rem .45rem !important;
+    border-right: 1px solid var(--clr-border-light) !important;
+}
+
+.ops-controls { display: none; }
+body.ops-active .ops-controls { display: flex; }
+
+.ops-btn-row { display: flex; gap: .25rem; align-items: center; flex-wrap: nowrap; }
+
+/* Dirty row — Update button turns green */
+tr.ops-dirty .btn-update-row {
+    background: var(--clr-success);
+    color: var(--clr-white);
+    border-color: var(--clr-success);
+}
+
+/* Tidy override input (narrow number field) */
+body.ops-active .ops-tidy-field { max-width: 58px; }
+
+/* ---------------------------------------------------------------------------
+   Flags column
+   --------------------------------------------------------------------------- */
+
+/* Pit-stop badge */
+.badge-pits { background: #d0eaf4; color: #0b5265; }
+
+/* Track condition badges */
+.badge-track-dry { background: #fff0c0; color: #7a5400; }
+.badge-track-wet { background: #d0eaf4; color: #0b5265; }
+
+/* ---------------------------------------------------------------------------
+   Weather notes mini-modal
+   --------------------------------------------------------------------------- */
+#weather-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,10,30,.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+    backdrop-filter: blur(2px);
+}
+#weather-modal-overlay.hidden { display: none; }
+
+#weather-modal {
+    background: var(--clr-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 420px;
+    padding: 1.4rem;
+    border-top: 3px solid var(--clr-primary);
+}
+#weather-modal h3 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--clr-primary);
+    margin-bottom: .25rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Footer bar
+   --------------------------------------------------------------------------- */
+#footer-bar {
+    padding: .45rem 1.4rem;
+    font-size: .78rem;
+    color: var(--clr-text-muted);
+    border-top: 1px solid var(--clr-border);
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    background: var(--clr-white);
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinning { display: inline-block; animation: spin .8s linear infinite; }
+
+/* ---------------------------------------------------------------------------
+   Modal overlay (setup page session modal)
+   --------------------------------------------------------------------------- */
+#modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,10,30,.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+    backdrop-filter: blur(2px);
+}
+#modal-overlay.hidden { display: none; }
+
+/* Session modal (also used by setup.html) */
+#session-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,10,30,.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+    backdrop-filter: blur(2px);
+}
+#session-modal-overlay.hidden { display: none; }
+
+#edit-modal {
+    background: var(--clr-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 580px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1.6rem;
+    border-top: 3px solid var(--clr-primary);
+}
+
+#edit-modal h3,
+#modal-session-title {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--clr-primary);
+    margin-bottom: 1rem;
+    padding-bottom: .65rem;
+    border-bottom: 1px solid var(--clr-border-light);
+}
+
+#modal-title {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--clr-primary);
+    margin-bottom: .25rem;
+}
+
+#modal-session-info {
+    font-size: .85rem;
+    color: var(--clr-text-muted);
+    margin-bottom: 1rem;
+    padding-bottom: .75rem;
+    border-bottom: 1px solid var(--clr-border);
+}
+
+#modal-session-alert { margin-bottom: .75rem; }
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: .6rem;
+    margin-top: 1rem;
+    padding-top: .75rem;
+    border-top: 1px solid var(--clr-border-light);
+}
+
+.modal-error {
+    background: var(--clr-danger-bg);
+    color: var(--clr-danger);
+    padding: .5rem .75rem;
+    border-radius: var(--radius);
+    font-size: .85rem;
+    margin-top: .75rem;
+    border-left: 3px solid var(--clr-danger);
+}
+.modal-error.hidden { display: none; }
+
+/* ---------------------------------------------------------------------------
+   Setup / Circuits pages
+   --------------------------------------------------------------------------- */
+.page-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.4rem;
+}
+
+.card {
+    background: var(--clr-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 1.4rem;
+    margin-bottom: 1.2rem;
+    border: 1px solid var(--clr-border-light);
+}
+
+.card-title {
+    font-family: var(--font-display);
+    font-size: .88rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--clr-primary);
+    margin-bottom: 1rem;
+    padding-bottom: .55rem;
+    border-bottom: 2px solid var(--clr-primary-light);
+}
+
+/* Session list in setup */
+#sessions-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: .87rem;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+#sessions-table th {
+    background: var(--clr-primary);
+    color: rgba(255,255,255,.9);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: .45rem .55rem;
+    text-align: left;
+    white-space: nowrap;
+}
+
+#sessions-table td {
+    padding: .45rem .55rem;
+    border-bottom: 1px solid var(--clr-border-light);
+    vertical-align: middle;
+    background: var(--clr-white);
+}
+
+#sessions-table tr:last-child td { border-bottom: none; }
+#sessions-table tr:hover td { background: var(--clr-primary-light); }
+
+/* Inline time display */
+.mono { font-family: var(--font-mono); }
+
+/* Alert / notification boxes */
+.alert {
+    padding: .6rem 1rem;
+    border-radius: var(--radius);
+    font-size: .88rem;
+    margin-bottom: .75rem;
+    border-left: 3px solid transparent;
+}
+
+.alert-info    { background: var(--clr-info-bg);    color: var(--clr-info);    border-left-color: var(--clr-info); }
+.alert-success { background: var(--clr-success-bg); color: var(--clr-success); border-left-color: var(--clr-success); }
+.alert-danger  { background: var(--clr-danger-bg);  color: var(--clr-danger);  border-left-color: var(--clr-danger); }
+.alert-warning { background: var(--clr-warning-bg); color: var(--clr-warning); border-left-color: var(--clr-warning); }
+
+.hidden { display: none !important; }
+
+/* ---------------------------------------------------------------------------
+   Responsive adjustments
+   --------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+    html { font-size: 14px; }
+
+    #header-bar { padding: .55rem 1rem; gap: .75rem; }
+    #header-bar h1 { font-size: 1.05rem; }
+    #clock { font-size: 1.15rem; }
+
+    #status-bar, #controls-bar { padding: .4rem 1rem; }
+
+    #timetable-wrapper { padding: .6rem .75rem; }
+
+    .page-content { padding: .9rem; }
+}
+
+@media (max-width: 480px) {
+    #timetable .col-grid { display: none; }
+}

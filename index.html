@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<!--
+    index.html
+    ==========================================================================
+    Race Day Operations Timetable — Main View
+
+    This is the primary display screen for the day.
+    - The ops clerk uses it to enter actual times (green flag, start, finish)
+      after activating Ops Mode with the PIN.
+    - Other clerks and officials open the same URL on their own devices and
+      see a live, auto-refreshing read-only view (updates every 30 seconds).
+
+    URL parameter: ?event=N  where N is the event ID from the database.
+    ==========================================================================
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Race Day Timetable</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Prevent browsers from caching the page during a live event -->
+    <meta http-equiv="cache-control" content="no-cache">
+</head>
+<body>
+
+<!-- ==========================================================================
+     Header bar — event identity and live clock
+     ========================================================================== -->
+<div id="header-bar">
+    <h1 id="event-name">Race Day Timetable</h1>
+    <span class="header-meta" id="event-meta"></span>
+    <span id="clock" title="Current time">--:--:--</span>
+</div>
+
+<!-- ==========================================================================
+     Status bar — running variance pill and curfew countdown
+     ========================================================================== -->
+<div id="status-bar">
+    <span id="variance-pill" class="status-pill neutral">Loading…</span>
+    <span id="curfew-pill"   class="status-pill curfew-pill">Curfew —</span>
+</div>
+
+<!-- ==========================================================================
+     Controls bar — event selector, refresh, ops mode toggle, setup link
+     ========================================================================== -->
+<div id="controls-bar">
+    <label for="event-select">Event:</label>
+    <select id="event-select" style="max-width:280px;">
+        <option value="">— select event —</option>
+    </select>
+
+    <button id="btn-refresh" class="btn btn-secondary" title="Refresh now">
+        &#8635; <span id="refresh-spinner"></span>
+    </button>
+
+    <button id="btn-ops-mode" class="btn btn-secondary">Ops Mode</button>
+
+    <a href="setup.html" class="btn btn-secondary" title="Event &amp; session setup">Setup / Admin</a>
+    <a href="help-readonly.html" class="btn btn-secondary" title="Help — timetable view">Help</a>
+</div>
+
+<!-- ==========================================================================
+     Page-level banners
+     ========================================================================== -->
+<div id="page-error"    class="alert alert-danger  hidden" style="margin:.5rem 1.2rem"></div>
+<div id="unsaved-banner" class="alert alert-warning hidden" style="margin:.5rem 1.2rem">
+    ⚠ Unsaved changes — auto-refresh paused. Save or clear each row to resume.
+</div>
+
+<!-- ==========================================================================
+     Main timetable
+     ========================================================================== -->
+<div id="timetable-wrapper">
+
+    <div id="empty-message" class="alert alert-info hidden" style="margin:1rem 0">
+        No event selected, or the selected event has no sessions yet.
+        <a href="setup.html">Open Setup</a> to create an event.
+    </div>
+
+    <table id="timetable" aria-label="Race day timetable">
+        <thead>
+            <tr>
+                <th rowspan="2" class="col-num">#</th>
+                <th rowspan="2" class="col-series">Series</th>
+                <th rowspan="2" class="col-session">Session</th>
+                <th rowspan="2" class="col-flags">Flags</th>
+                <th colspan="4" class="th-group th-group-sched">Scheduled</th>
+                <th colspan="2" class="th-group th-group-override">Override</th>
+                <th colspan="4" class="th-group th-group-actual">Actual</th>
+                <th colspan="2" class="th-group th-group-advised">Advised</th>
+                <th colspan="2" class="th-group th-group-pred">Predicted</th>
+                <th colspan="3" class="th-group th-group-gap">Gap</th>
+                <th rowspan="2" class="col-status" title="Session status">Status</th>
+                <th rowspan="2" class="col-ops"><!-- ops --></th>
+            </tr>
+            <tr>
+                <th class="col-mins          th-group-sched"    title="Planned duration (minutes)">Dur</th>
+                <th class="col-sched-start   th-group-sched"    title="Planned session start time">Start</th>
+                <th class="col-sched-finish  th-group-sched"    title="Planned session finish time">Finish</th>
+                <th class="col-sched-tidy    th-group-sched"    title="Scheduled gap to next session (minutes)">Tidy</th>
+                <th class="col-dur-ovr       th-group-override" title="Duration override (minutes) — replaces planned duration for predictions">Dur</th>
+                <th class="col-tidy-ovr      th-group-override" title="Tidy override (minutes) — overrides scheduled gap to next session">Tidy</th>
+                <th class="col-act-grid      th-group-actual"   title="Actual time cars were released to the assembly grid (race sessions)">Grid</th>
+                <th class="col-act-gfl       th-group-actual"   title="Actual formation lap start time (races with GFL only)">GFL</th>
+                <th class="col-act-start     th-group-actual"   title="Actual session start time">Start</th>
+                <th class="col-act-finish    th-group-actual"   title="Actual session finish time">Finish</th>
+                <th class="col-adv-grid     th-group-advised" title="Advised time for cars to leave pit lane to assembly grid">Grid</th>
+                <th class="col-adv-gfl      th-group-advised" title="Advised formation lap start time (race start minus GFL duration)">GFL</th>
+                <th class="col-pred-start   th-group-pred"   title="Predicted session start time — cascades from previous session">Start</th>
+                <th class="col-pred-finish  th-group-pred"   title="Predicted session finish time">Finish</th>
+                <th class="col-var          th-group-gap"    title="Variance vs schedule (+ late, − early, minutes)">↑↓</th>
+                <th class="col-slip         th-group-gap"    title="Actual tidy time achieved (predicted start minus previous finish)">Slip</th>
+                <th class="col-diff         th-group-gap"    title="Slip minus scheduled tidy (+ over, − under)">Diff</th>
+            </tr>
+        </thead>
+        <tbody id="session-rows">
+            <!-- Rows injected by timetable.js -->
+        </tbody>
+    </table>
+</div>
+
+<!-- ==========================================================================
+     Footer bar — last updated time, next refresh countdown
+     ========================================================================== -->
+<div id="footer-bar">
+    <span id="last-updated">Not yet loaded</span>
+    <span id="next-refresh">—</span>
+    <span style="margin-left:auto;color:var(--clr-text-muted)">
+        Timetable auto-refreshes every 30&nbsp;seconds.
+        Other clerks can view this page on their own device.
+    </span>
+</div>
+
+<!-- ==========================================================================
+     Weather / session notes mini-modal (Ops Mode only)
+     Opened by the 📝 button on a session row.  Actual times are now entered
+     directly in the timetable row — this modal handles weather notes only.
+     ========================================================================== -->
+<div id="weather-modal-overlay" class="hidden" role="dialog" aria-modal="true"
+     aria-labelledby="wm-title">
+    <div id="weather-modal">
+
+        <h3 id="wm-title">Session Notes</h3>
+        <p id="wm-session-info" style="font-size:.85rem;color:var(--clr-text-muted);margin-bottom:.75rem"></p>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="wm-track-condition">Track condition at end of session</label>
+                <select id="wm-track-condition" style="width:180px">
+                    <option value="">— not recorded —</option>
+                    <option value="dry">Dry</option>
+                    <option value="wet">Wet</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group" style="grid-column:1/-1">
+                <label for="wm-notes">Weather / session notes (optional)</label>
+                <textarea id="wm-notes" rows="3"
+                    placeholder="e.g. Light rain from 14:20, drying line by start…"></textarea>
+            </div>
+        </div>
+
+        <div id="wm-error" class="modal-error hidden"></div>
+
+        <div class="modal-buttons">
+            <button id="wm-cancel" type="button" class="btn btn-secondary">Cancel</button>
+            <button id="wm-save"   type="button" class="btn btn-primary">Save Notes</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- Scripts — api.js must be loaded before timetable.js (RDT namespace dependency) -->
+<script src="js/api.js"></script>
+<script src="js/timetable.js"></script>
+
+</body>
+</html>

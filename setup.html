@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<!--
+    setup.html
+    ==========================================================================
+    Race Day Operations Timetable — Event & Session Setup
+
+    Used by the clerk of the course before (and during) the event to:
+      • Create and manage circuits (venues) with their curfew times
+      • Add circuit layouts (e.g. Silverstone GP / National / International)
+        and set the green flag lap duration per layout
+      • Create and configure the event (meeting name, date, circuit layout)
+      • Build the timetable: add/edit/delete/reorder sessions
+
+    Session duration entered here is the RACE/SESSION duration only.
+    The formation lap time comes from the circuit layout and is shown
+    as a separate figure in the block-time hints.
+
+    All write operations require the Ops PIN.
+    ==========================================================================
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup — Race Day Timetable</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- Header -->
+<div id="header-bar">
+    <h1>Race Day Timetable — Setup</h1>
+    <a href="circuits.html" class="btn btn-secondary">Circuits &amp; Layouts</a>
+    <a href="help-setup.html" class="btn btn-secondary" title="Help — setup &amp; admin">Help</a>
+    <a href="/" class="btn btn-secondary" style="margin-left:auto">← Back to Timetable</a>
+</div>
+
+<!-- Global alert -->
+<div id="setup-alert" class="alert hidden" style="margin:.5rem 1.2rem;margin-bottom:0"></div>
+
+<div class="page-content">
+
+    <!-- ====================================================================
+         Event selector + new event
+         ==================================================================== -->
+    <div class="card">
+        <div class="card-title">Select or Create Event</div>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
+            <div style="flex:1;min-width:200px">
+                <select id="event-select" style="width:100%">
+                    <option value="">— loading events… —</option>
+                </select>
+            </div>
+            <button id="btn-new-event" class="btn btn-primary">+ New Event</button>
+        </div>
+    </div>
+
+    <!-- ====================================================================
+         Event details form
+         ==================================================================== -->
+    <div id="event-form-section" class="card hidden">
+        <div class="card-title" id="event-form-title">Event Details</div>
+        <div id="event-alert" class="alert hidden" style="margin-bottom:.75rem"></div>
+
+        <div class="form-row">
+            <div class="form-group" style="grid-column:1/-1">
+                <label for="event-name-input">Event Name *</label>
+                <input type="text" id="event-name-input"
+                    placeholder="e.g. BRSCC Brands Hatch Summer Sprint">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="event-date-input">Date *</label>
+                <input type="date" id="event-date-input">
+            </div>
+            <div class="form-group">
+                <label for="event-circuit">Circuit *</label>
+                <select id="event-circuit">
+                    <option value="">— select circuit —</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="event-layout">
+                    Layout *
+                </label>
+                <select id="event-layout">
+                    <option value="">— select circuit first —</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="event-curfew">
+                    Curfew Time *
+                    <span style="font-weight:400;font-size:.78rem">(auto-filled from circuit)</span>
+                </label>
+                <input type="time" id="event-curfew" placeholder="18:00">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group" style="max-width:200px">
+                <label for="event-gfl-override">
+                    GFL Override (min)
+                    <span style="font-weight:400;font-size:.77rem">blank = use layout default</span>
+                </label>
+                <input type="number" id="event-gfl-override" min="1" max="10"
+                    placeholder="—" style="width:90px">
+            </div>
+            <div class="form-group" style="max-width:200px">
+                <label for="event-grid-override">
+                    Grid Assembly Override (min)
+                    <span style="font-weight:400;font-size:.77rem">blank = use layout default</span>
+                </label>
+                <input type="number" id="event-grid-override" min="1" max="30"
+                    placeholder="—" style="width:90px">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group" style="grid-column:1/-1">
+                <label for="event-notes">Notes (optional)</label>
+                <textarea id="event-notes" rows="2"
+                    placeholder="Permit number, organiser contact, special instructions…"></textarea>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.25rem">
+            <button id="btn-save-event" class="btn btn-primary">Save Event</button>
+            <button id="btn-delete-event" class="btn btn-danger hidden">Delete Event</button>
+        </div>
+    </div>
+
+    <!-- ====================================================================
+         Sessions table
+         ==================================================================== -->
+    <div id="sessions-section" class="card hidden">
+        <div class="card-title">Sessions</div>
+        <div id="sessions-alert" class="alert hidden" style="margin-bottom:.75rem"></div>
+
+        <div style="margin-bottom:.75rem">
+            <button id="btn-add-session" class="btn btn-primary">+ Add Session</button>
+        </div>
+
+        <div style="overflow-x:auto">
+            <table id="sessions-table" aria-label="Sessions">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Series</th>
+                        <th>Session</th>
+                        <th>Plan Start</th>
+                        <th title="Race/session duration (not including formation lap) + GFL = total slot">Duration</th>
+                        <th title="Standing / Rolling — races only">S/R</th>
+                        <th title="Green flag / formation lap planned">GFL</th>
+                        <th title="Pit stops">Pits</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="sessions-table-body"></tbody>
+            </table>
+        </div>
+
+        <div style="margin-top:1rem;font-size:.85rem;color:var(--clr-text-muted)">
+            Share the timetable view:
+            <a id="timetable-link" href="/" target="_blank" style="font-family:var(--font-mono)">/</a>
+        </div>
+    </div>
+
+    <!-- ====================================================================
+         Circuit management link
+         ==================================================================== -->
+    <div class="card">
+        <div class="card-title">Circuits &amp; Layouts</div>
+        <p style="font-size:.85rem;color:var(--clr-text-muted);margin-bottom:.75rem">
+            Add circuits, configure layouts and set green flag lap / grid assembly times.
+        </p>
+        <a href="circuits.html" class="btn btn-primary">Manage Circuits &amp; Layouts →</a>
+    </div>
+
+</div><!-- .page-content -->
+
+
+<!-- ========================================================================
+     Add / Edit Session Modal
+     ======================================================================== -->
+<div id="session-modal-overlay" class="hidden" role="dialog" aria-modal="true"
+     aria-labelledby="modal-session-title">
+    <div id="edit-modal" style="max-width:640px">
+
+        <h3 id="modal-session-title">Add Session</h3>
+        <div id="modal-session-alert" class="alert hidden" style="margin-bottom:.75rem"></div>
+
+        <!-- Series + type + number -->
+        <div class="form-row">
+            <div class="form-group" style="grid-column:span 2">
+                <label for="sess-series">Series / Championship *</label>
+                <input type="text" id="sess-series"
+                    placeholder="e.g. Formula Ford 1600, Clio Cup, MINI Challenge">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="sess-type">Session Type *</label>
+                <select id="sess-type">
+                    <option value="practice">Practice</option>
+                    <option value="qualifying">Qualifying</option>
+                    <option value="race" selected>Race</option>
+                    <option value="break">Break / Lunch</option>
+                </select>
+            </div>
+            <div class="form-group" id="sess-number-group">
+                <label for="sess-number">Type Number *</label>
+                <input type="number" id="sess-number" min="1" max="9" value="1" style="width:80px">
+            </div>
+        </div>
+
+        <!-- Start time and duration -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="sess-start">Planned Start Time *</label>
+                <input type="time" id="sess-start">
+            </div>
+            <div class="form-group">
+                <label for="sess-duration">
+                    Duration (minutes) *
+                </label>
+                <input type="number" id="sess-duration" min="1" max="999" value="20" style="width:100px">
+            </div>
+        </div>
+
+        <!-- Start type — races only (hidden for practice/qualifying by JS) -->
+        <div id="sess-starttype-row" class="form-row">
+            <div class="form-group">
+                <label for="sess-starttype">Start Type *</label>
+                <select id="sess-starttype">
+                    <option value="standing">Standing Start</option>
+                    <option value="rolling">Rolling Start</option>
+                </select>
+            </div>
+            <div class="form-group checkbox" style="align-self:flex-end;padding-bottom:.5rem">
+                <input type="checkbox" id="sess-gfl">
+                <label for="sess-gfl">Green flag lap?</label>
+            </div>
+            <div class="form-group checkbox" style="align-self:flex-end;padding-bottom:.5rem">
+                <input type="checkbox" id="sess-pits">
+                <label for="sess-pits">Pit stops?</label>
+            </div>
+        </div>
+
+        <!-- For practice/qualifying: Pits only (no GFL — never applicable) -->
+        <div id="sess-nonstarttype-row" class="form-row hidden">
+            <div class="form-group checkbox" style="align-self:flex-end;padding-bottom:.5rem">
+                <input type="checkbox" id="sess-pits-alt">
+                <label for="sess-pits-alt">Pit stops in this session</label>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-row">
+            <div class="form-group" style="grid-column:1/-1">
+                <label for="sess-notes">Notes (optional)</label>
+                <textarea id="sess-notes" rows="2"
+                    placeholder="Reversed grid, championship points round, etc."></textarea>
+            </div>
+        </div>
+
+        <div class="modal-buttons">
+            <button id="modal-session-cancel" type="button" class="btn btn-secondary">Cancel</button>
+            <button id="modal-session-save"   type="button" class="btn btn-primary">Save Session</button>
+        </div>
+
+    </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/setup.js"></script>
+
+<script>
+/* ============================================================================
+   Inline: sync the duplicate GFL/pits checkboxes so the underlying
+   values are always consistent regardless of which row is visible.
+   ============================================================================ */
+(function () {
+    function syncCheckboxes(sourceId, targetId) {
+        const src = document.getElementById(sourceId);
+        const tgt = document.getElementById(targetId);
+        if (src && tgt) {
+            src.addEventListener('change', () => { tgt.checked = src.checked; });
+            tgt.addEventListener('change', () => { src.checked = tgt.checked; });
+        }
+    }
+    syncCheckboxes('sess-pits', 'sess-pits-alt');
+})();
+</script>
+
+</body>
+</html>

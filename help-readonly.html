@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable Help — Race Day Timetable</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .help-body { max-width: 860px; margin: 0 auto; padding: 1.5rem 1.4rem 3rem; }
+        .help-nav { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid var(--clr-border); }
+        .help-nav a { font-size: .82rem; }
+        h2 { font-family: var(--font-display); font-size: 1.35rem; color: var(--clr-primary); margin: 2rem 0 .6rem; border-bottom: 1px solid var(--clr-border); padding-bottom: .35rem; }
+        h3 { font-size: 1rem; font-weight: 600; margin: 1.25rem 0 .4rem; color: var(--clr-primary-mid); }
+        p { margin-bottom: .75rem; line-height: 1.65; }
+        ul, ol { margin: .4rem 0 .75rem 1.4rem; }
+        li { margin-bottom: .35rem; line-height: 1.6; }
+        .callout { background: var(--clr-primary-light); border-left: 4px solid var(--clr-primary-mid); border-radius: 0 var(--radius) var(--radius) 0; padding: .7rem 1rem; margin: .75rem 0 1rem; }
+        .callout p { margin: 0; font-size: .9rem; }
+        .field-label { font-family: var(--font-mono); font-size: .82rem; background: var(--clr-border-light); border: 1px solid var(--clr-border); border-radius: 3px; padding: .1rem .4rem; white-space: nowrap; }
+        .intro-lead { font-size: 1.05rem; color: var(--clr-text-muted); margin-bottom: 1.5rem; border-bottom: 1px solid var(--clr-border); padding-bottom: 1.25rem; }
+        .col-table { width: 100%; border-collapse: collapse; margin: .5rem 0 1rem; font-size: .88rem; }
+        .col-table th { text-align: left; background: var(--clr-primary); color: #fff; padding: .4rem .6rem; }
+        .col-table td { padding: .4rem .6rem; border-bottom: 1px solid var(--clr-border-light); vertical-align: top; }
+        .col-table tr:last-child td { border-bottom: none; }
+        .col-table td:first-child { font-family: var(--font-mono); font-size: .8rem; white-space: nowrap; }
+        .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; border: 1px solid rgba(0,0,0,.15); }
+    </style>
+</head>
+<body>
+
+<div id="header-bar">
+    <h1>Timetable View Help</h1>
+    <a href="/" class="btn btn-secondary" style="margin-left:auto">← Back to Timetable</a>
+</div>
+
+<div class="help-body">
+
+    <div class="help-nav">
+        <strong style="font-size:.82rem;align-self:center">Also:</strong>
+        <a href="help-setup.html" class="btn btn-secondary btn-sm">Setup &amp; Admin Help</a>
+        <a href="help-ops.html" class="btn btn-secondary btn-sm">Ops Mode Help</a>
+    </div>
+
+    <p class="intro-lead">
+        The main timetable page is a <strong>live, read-only view</strong> that any official
+        can open on their own device. It shows the full day's schedule alongside predicted
+        times that update as the ops clerk enters actuals. The page refreshes automatically
+        every 30 seconds — no action required.
+    </p>
+
+    <!-- ====================================================================
+         HEADER & STATUS BAR
+         ==================================================================== -->
+    <h2 id="header">Header &amp; Status Bar</h2>
+
+    <h3>Header bar</h3>
+    <ul>
+        <li><strong>Event name</strong> — The meeting name, circuit, and layout.</li>
+        <li><strong>GFL / Grid minutes</strong> — The formation lap duration and grid assembly
+            time in use for this event, shown for reference.</li>
+        <li><strong>Live clock</strong> — Current time, updated every second.</li>
+    </ul>
+
+    <h3>Status bar</h3>
+    <ul>
+        <li><strong>Variance pill</strong> — Shows overall running variance: how many minutes
+            ahead or behind schedule the day is running, based on the last session with a
+            known predicted start. Green = on time or within a few minutes;
+            amber = moderately late; red = significantly late; blue = running early.</li>
+        <li><strong>Curfew pill</strong> — Shows the curfew time and a countdown.
+            Turns amber when within 30 minutes; turns red when curfew is passed.</li>
+    </ul>
+
+    <!-- ====================================================================
+         COLUMN GROUPS
+         ==================================================================== -->
+    <h2 id="columns">Timetable Columns</h2>
+
+    <p>Columns are grouped by colour band across the header. Here is what each group and
+    column contains:</p>
+
+    <h3>Identity columns</h3>
+    <table class="col-table">
+        <thead><tr><th>Column</th><th>Meaning</th></tr></thead>
+        <tbody>
+            <tr><td>#</td><td>Session number for the day. Break/lunch rows are not numbered.</td></tr>
+            <tr><td>Series</td><td>The racing series or championship name.</td></tr>
+            <tr><td>Session</td><td>Session type and number — e.g. FP1, Q1, Race 2.</td></tr>
+            <tr><td>Flags</td><td>Badges indicating session format: <strong>GFL</strong> (formation lap
+                planned), <strong>Pits</strong> (pit stops permitted), <strong>S</strong> (standing start),
+                <strong>R</strong> (rolling start).</td></tr>
+        </tbody>
+    </table>
+
+    <h3>Scheduled group</h3>
+    <p>The original planned timetable as entered in Setup. These values never change during the event.</p>
+    <table class="col-table">
+        <thead><tr><th>Column</th><th>Meaning</th></tr></thead>
+        <tbody>
+            <tr><td>Dur</td><td>Planned session duration in minutes (race/session only, excludes formation lap).</td></tr>
+            <tr><td>Start</td><td>Planned session start time.</td></tr>
+            <tr><td>Finish</td><td>Planned finish time (start + duration).</td></tr>
+            <tr><td>Tidy</td><td>Scheduled turnaround gap between this session's planned finish and
+                the next session's planned start.</td></tr>
+        </tbody>
+    </table>
+
+    <h3>Override group</h3>
+    <p>Values entered by the ops clerk to adjust predictions without altering the original
+    schedule. Blank when no override is in effect.</p>
+    <table class="col-table">
+        <thead><tr><th>Column</th><th>Meaning</th></tr></thead>
+        <tbody>
+            <tr><td>Dur</td><td>Duration override in minutes. When set, this replaces the scheduled
+                duration for all predicted finish time calculations.</td></tr>
+            <tr><td>Tidy</td><td>Tidy-time override in minutes. When set, this replaces the scheduled
+                turnaround gap when cascading predictions to the next session.</td></tr>
+        </tbody>
+    </table>
+
+    <h3>Actual group</h3>
+    <p>Times recorded by the ops clerk as the event progresses. Bold text in the Predicted
+    columns indicates that an actual time has anchored the prediction.</p>
+    <table class="col-table">
+        <thead><tr><th>Column</th><th>Meaning</th></tr></thead>
+        <tbody>
+            <tr><td>Grid</td><td>Actual time cars were released from pit lane to the assembly grid
+                (race sessions). For reference and record-keeping.</td></tr>
+            <tr><td>GFL</td><td>Actual time the green flag was shown / formation lap began
+                (sessions with a planned formation lap only).</td></tr>
+            <tr><td>Start</td><td>Actual session start time — lights out (standing start) or
+                rolling-start trigger.</td></tr>
+            <tr><td>Finish</td><td>Actual time the chequered flag was shown.</td></tr>
+        </tbody>
+    </table>
+
+    <h3>Advised group</h3>
+    <p>Calculated call times for race sessions, derived from the predicted start time.
+    Blank for practice, qualifying, and breaks.</p>
+    <table class="col-table">
+        <thead><tr><th>Column</th><th>Meaning</th></tr></thead>
+        <tbody>
+            <tr><td>Grid</td><td>Advised time to release cars from pit lane to the assembly grid
+                (= predicted race start − GFL minutes − grid minutes).</td></tr>
+            <tr><td>GFL</td><td>Advised formation lap start time (= predicted race start − GFL
+                minutes). Only shown for sessions with a planned formation lap.</td></tr>
+        </tbody>
+    </table>
+
+    <h3>Predicted group</h3>
+    <table class="col-table">
+        <thead><tr><th>Column</th><th>Meaning</th></tr></thead>
+        <tbody>
+            <tr><td>Start</td><td>Predicted session start time. Bold if anchored by an actual
+                start time. Shown in colour if it differs from the scheduled start.</td></tr>
+            <tr><td>Finish</td><td>Predicted session finish time. Bold if anchored by an actual
+                finish time. Shaded amber or red when close to or past curfew.</td></tr>
+        </tbody>
+    </table>
+
+    <h3>Gap group</h3>
+    <table class="col-table">
+        <thead><tr><th>Column</th><th>Meaning</th></tr></thead>
+        <tbody>
+            <tr><td>↑↓</td><td>Variance — how many minutes ahead (−) or behind (+) schedule
+                this session is predicted to start, compared to its planned start time.</td></tr>
+            <tr><td>Slip</td><td>The actual tidy time achieved between the previous session's
+                finish and this session's predicted start.</td></tr>
+            <tr><td>Diff</td><td>Slip minus the scheduled tidy time. Positive = the turnaround
+                took longer than planned; negative = it was quicker.</td></tr>
+        </tbody>
+    </table>
+
+    <!-- ====================================================================
+         PREDICTIONS
+         ==================================================================== -->
+    <h2 id="predictions">How Predictions Work</h2>
+
+    <p>
+        Predicted times cascade forward through the timetable from the last known actual.
+        The rules are straightforward:
+    </p>
+
+    <ol>
+        <li>If a session has an <strong>actual start time</strong>, its predicted start is that
+            actual time.</li>
+        <li>If a session has an <strong>actual GFL time</strong> (and a formation lap is planned),
+            the predicted start is the GFL time + GFL minutes.</li>
+        <li>Otherwise, the predicted start = previous session's predicted finish + effective tidy
+            time.</li>
+        <li>If a session has an <strong>actual finish time</strong>, its predicted finish is that
+            actual time. Otherwise it is predicted start + effective duration.</li>
+    </ol>
+
+    <p>
+        <strong>Effective duration</strong> = duration override if one is set, otherwise the
+        scheduled duration.<br>
+        <strong>Effective tidy time</strong> = the tidy override on the <em>previous</em> session
+        if one is set, otherwise the scheduled gap between the two sessions.
+    </p>
+
+    <p>
+        <strong>Cancelled sessions</strong> are skipped in the cascade — the time slot is
+        effectively removed, but the turnaround gap after the cancelled session is preserved
+        for the following session.
+    </p>
+
+    <!-- ====================================================================
+         COLOUR CODING
+         ==================================================================== -->
+    <h2 id="colours">Colour Coding</h2>
+
+    <h3>Variance column (↑↓)</h3>
+    <p>For upcoming and active sessions only (completed sessions are not highlighted):</p>
+    <ul>
+        <li><span class="swatch" style="background:rgba(34,197,94,0.25)"></span>
+            <strong>Running late up to 15 min</strong> — green background.</li>
+        <li><span class="swatch" style="background:rgba(245,158,11,0.30)"></span>
+            <strong>Running 15–20 min late</strong> — amber background.</li>
+        <li><span class="swatch" style="background:rgba(239,68,68,0.30)"></span>
+            <strong>Running more than 20 min late</strong> — red background.</li>
+        <li><strong style="color:#166534">Running early up to 15 min</strong> — bold green text,
+            no background.</li>
+        <li><strong style="color:#92400e">Running 15–20 min early</strong> — bold amber text.</li>
+        <li><strong style="color:#991b1b">Running more than 20 min early</strong> — bold red text.</li>
+    </ul>
+
+    <h3>Predicted Finish column</h3>
+    <ul>
+        <li><span class="swatch" style="background:rgba(217,119,6,0.32)"></span>
+            <strong>Within 20 minutes of curfew</strong> — amber background, deepening to red
+            as curfew approaches.</li>
+        <li><span class="swatch" style="background:rgba(220,38,38,0.32)"></span>
+            <strong>At or past curfew</strong> — red background.</li>
+    </ul>
+
+    <h3>Row states</h3>
+    <ul>
+        <li><strong>Completed sessions</strong> are shown in muted grey text to visually
+            recede from upcoming sessions.</li>
+        <li><strong>Active sessions</strong> have a green left-border accent.</li>
+        <li><strong>Cancelled sessions</strong> are shown in muted text with a strikethrough.</li>
+        <li><strong>Red-flagged sessions</strong> have a red background.</li>
+    </ul>
+
+    <!-- ====================================================================
+         SESSION STATUS
+         ==================================================================== -->
+    <h2 id="status">Session Status</h2>
+
+    <p>Each session shows a status chip in the Status column:</p>
+
+    <table class="col-table">
+        <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+        <tbody>
+            <tr><td>Pending</td><td>Session has not yet started.</td></tr>
+            <tr><td>GFL</td><td>Formation lap in progress (actual GFL time recorded, no start time yet).</td></tr>
+            <tr><td>Active</td><td>Session is running (actual start time recorded, no finish time yet).</td></tr>
+            <tr><td>Done</td><td>Session is complete (actual finish time recorded).</td></tr>
+            <tr><td>Red Flag</td><td>Session has been stopped. Manually set by the ops clerk.</td></tr>
+            <tr><td>Cancelled</td><td>Session will not run. Removed from the time cascade.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="callout">
+        <p><strong>Active</strong> and <strong>Done</strong> are set automatically when the ops
+        clerk enters an actual start or finish time — no manual status selection needed in normal
+        circumstances. Only <strong>Red Flag</strong> and <strong>Cancelled</strong> need to be
+        set manually.</p>
+    </div>
+
+    <!-- ====================================================================
+         AUTO REFRESH
+         ==================================================================== -->
+    <h2 id="refresh">Auto-Refresh</h2>
+
+    <p>
+        The timetable page reloads data from the server every <strong>30 seconds</strong>
+        automatically. The footer shows the time of the last successful refresh and a countdown
+        to the next one. No action is needed — simply leave the page open.
+    </p>
+
+    <p>
+        Multiple officials can open the same URL simultaneously on their own devices (phones,
+        tablets, laptops). All will see the same live data. Share the URL in the format
+        <code style="font-family:var(--font-mono);font-size:.85rem">https://your-server/?event=N</code>
+        where N is the event ID visible in the address bar when the event is selected.
+    </p>
+
+</div>
+</body>
+</html>

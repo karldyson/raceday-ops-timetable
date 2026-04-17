@@ -1,0 +1,8 @@
+# Prevent direct HTTP access to config.php (contains database credentials).
+# Other PHP files in this directory are intentionally web-accessible.
+<Files "config.php">
+    Require all denied
+</Files>
+
+# Disable directory listings
+Options -Indexes

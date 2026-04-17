@@ -1,0 +1,3 @@
+# The db/ directory contains only SQL schema files.
+# Block all HTTP access — these files should never be served to a browser.
+Require all denied

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Help — Race Day Timetable</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .help-body { max-width: 860px; margin: 0 auto; padding: 1.5rem 1.4rem 3rem; }
+        .help-nav { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid var(--clr-border); }
+        .help-nav a { font-size: .82rem; }
+        h2 { font-family: var(--font-display); font-size: 1.35rem; color: var(--clr-primary); margin: 2rem 0 .6rem; border-bottom: 1px solid var(--clr-border); padding-bottom: .35rem; }
+        h3 { font-size: 1rem; font-weight: 600; margin: 1.25rem 0 .4rem; color: var(--clr-primary-mid); }
+        p { margin-bottom: .75rem; line-height: 1.65; }
+        ul, ol { margin: .4rem 0 .75rem 1.4rem; }
+        li { margin-bottom: .35rem; line-height: 1.6; }
+        .callout { background: var(--clr-primary-light); border-left: 4px solid var(--clr-primary-mid); border-radius: 0 var(--radius) var(--radius) 0; padding: .7rem 1rem; margin: .75rem 0 1rem; }
+        .callout-warn { background: var(--clr-warning-bg); border-left-color: var(--clr-warning); }
+        .callout p { margin: 0; font-size: .9rem; }
+        .field-label { font-family: var(--font-mono); font-size: .82rem; background: var(--clr-border-light); border: 1px solid var(--clr-border); border-radius: 3px; padding: .1rem .4rem; white-space: nowrap; }
+        .intro-lead { font-size: 1.05rem; color: var(--clr-text-muted); margin-bottom: 1.5rem; border-bottom: 1px solid var(--clr-border); padding-bottom: 1.25rem; }
+    </style>
+</head>
+<body>
+
+<div id="header-bar">
+    <h1>Setup &amp; Administration Help</h1>
+    <a href="setup.html" class="btn btn-secondary" style="margin-left:auto">← Back to Setup</a>
+</div>
+
+<div class="help-body">
+
+    <div class="help-nav">
+        <strong style="font-size:.82rem;align-self:center">Also:</strong>
+        <a href="help-readonly.html" class="btn btn-secondary btn-sm">Timetable View Help</a>
+        <a href="help-ops.html" class="btn btn-secondary btn-sm">Ops Mode Help</a>
+    </div>
+
+    <p class="intro-lead">
+        This page covers everything in the <strong>Setup / Admin</strong> and <strong>Circuits &amp; Layouts</strong>
+        screens. Work through the sections in order when configuring a new installation:
+        circuits first, then layouts, then events, then sessions.
+    </p>
+
+    <!-- ====================================================================
+         CIRCUITS
+         ==================================================================== -->
+    <h2 id="circuits">Circuits</h2>
+
+    <p>
+        A <strong>circuit</strong> represents a physical venue. Each circuit holds a default
+        curfew time — the hard deadline by which all racing must finish — which is normally
+        set by the venue's noise-abatement permit or local authority condition.
+    </p>
+
+    <h3>Adding a circuit</h3>
+    <p>Open <strong>Circuits &amp; Layouts</strong> from the Setup screen. Enter the venue name
+    and its default curfew time, then click <strong>Add Circuit</strong>. UK circuits commonly
+    used in club motorsport are pre-loaded.</p>
+
+    <ul>
+        <li><span class="field-label">Name</span> — The full venue name, e.g. <em>Brands Hatch</em>.</li>
+        <li><span class="field-label">Default Curfew</span> — The time by which the final chequered flag
+            must fall. This value is copied to each new event and can be adjusted per-event if a
+            special late curfew has been agreed.</li>
+    </ul>
+
+    <div class="callout">
+        <p>Circuits cannot be deleted while they have layouts attached, and layouts cannot be
+        deleted while they are in use by an event. Remove dependent records first.</p>
+    </div>
+
+    <!-- ====================================================================
+         LAYOUTS
+         ==================================================================== -->
+    <h2 id="layouts">Circuit Layouts</h2>
+
+    <p>
+        Most venues can be run in more than one configuration — for example Brands Hatch Indy
+        and Brands Hatch Grand Prix. Each configuration is a separate <strong>layout</strong>
+        because the lap time (and therefore the formation lap duration) differs between them.
+    </p>
+
+    <h3>Adding a layout</h3>
+    <p>Select a circuit in the Circuits &amp; Layouts screen, then add a layout with a name and
+    its timing values:</p>
+
+    <ul>
+        <li><span class="field-label">Layout name</span> — e.g. <em>Indy</em>, <em>Grand Prix</em>,
+            <em>National</em>.</li>
+        <li><span class="field-label">GFL minutes</span> — Estimated duration of the formation (green flag)
+            lap in minutes. This is the time from <em>green flag shown</em> to <em>race start</em>.
+            It is used to calculate the advised formation lap start time and to determine total
+            session block time. Typical values are 2–3 minutes depending on circuit length.</li>
+        <li><span class="field-label">Grid minutes</span> — How many minutes before the formation lap
+            start that cars should leave the pit lane and assemble on the grid. Typically 5 minutes.
+            This drives the <em>Advised Grid</em> time shown on the timetable.</li>
+    </ul>
+
+    <div class="callout">
+        <p>GFL and grid minutes are estimates based on normal conditions. Both can be overridden
+        at event level if a particular meeting requires different timing — for example a longer
+        lap due to safety car procedures, or a shorter grid assembly window.</p>
+    </div>
+
+    <!-- ====================================================================
+         EVENTS
+         ==================================================================== -->
+    <h2 id="events">Events</h2>
+
+    <p>
+        An <strong>event</strong> is a single race meeting. It ties together a date, a circuit
+        layout, and a curfew time, and acts as the parent record for all sessions on the day.
+    </p>
+
+    <h3>Creating an event</h3>
+    <p>On the Setup screen, click <strong>New Event</strong> and complete the form:</p>
+
+    <ul>
+        <li><span class="field-label">Event name</span> — A descriptive title, e.g.
+            <em>BRSCC Brands Hatch Finals 2025</em>.</li>
+        <li><span class="field-label">Date</span> — The date of the meeting.</li>
+        <li><span class="field-label">Circuit layout</span> — Select the venue and configuration.
+            The GFL and grid minutes are populated automatically from the layout.</li>
+        <li><span class="field-label">Curfew time</span> — Pre-filled from the circuit default.
+            Adjust if the event has been granted a different finish time.</li>
+        <li><span class="field-label">GFL override</span> / <span class="field-label">Grid override</span> —
+            Leave blank to use the layout defaults. Enter a value only if this specific event
+            needs different formation lap or grid assembly timing.</li>
+        <li><span class="field-label">Notes</span> — Optional free text for any event-level notes.</li>
+    </ul>
+
+    <h3>Editing an event</h3>
+    <p>Select the event from the dropdown. Its details load into the form. Make changes and click
+    <strong>Save Event</strong>. Changes take effect immediately on the timetable.</p>
+
+    <!-- ====================================================================
+         SESSIONS
+         ==================================================================== -->
+    <h2 id="sessions">Sessions</h2>
+
+    <p>
+        Sessions are the individual on-track slots that make up the day's timetable — practice,
+        qualifying, race, and break. They appear in the timetable in the order they are listed
+        here.
+    </p>
+
+    <h3>Adding a session</h3>
+    <p>With an event selected, click <strong>Add Session</strong>. Complete the form and click
+    <strong>Save Session</strong>:</p>
+
+    <ul>
+        <li><span class="field-label">Series / Championship</span> — The name of the racing series,
+            e.g. <em>Formula Ford 1600</em> or <em>Clio Cup</em>. For breaks, enter a descriptive
+            name such as <em>Lunch</em>.</li>
+        <li><span class="field-label">Session Type</span> — Practice, Qualifying, Race, or
+            Break / Lunch. Break sessions are excluded from race numbering and do not show
+            advised grid or formation lap times.</li>
+        <li><span class="field-label">Type Number</span> — Distinguishes multiple sessions of the
+            same type for the same series. Session 1 = FP1 / Q1 / Race 1, session 2 = FP2 / Race 2,
+            and so on. Hidden for break sessions.</li>
+        <li><span class="field-label">Planned Start</span> — The scheduled start time of the session.
+            For race sessions this is the race start (lights out / rolling start trigger),
+            <em>not</em> the formation lap start — the timetable works backwards from this time
+            to compute the advised grid and GFL times.</li>
+        <li><span class="field-label">Duration (mins)</span> — The scheduled session duration in
+            minutes. For races, this is the racing duration only — it does not include the
+            formation lap. The formation lap time is taken from the circuit layout.</li>
+        <li><span class="field-label">Start type</span> — Standing or Rolling start. Races only;
+            shown as an S or R badge on the timetable.</li>
+        <li><span class="field-label">GFL</span> — Tick if this session has a planned formation
+            (green flag) lap before the race start. This enables the Advised GFL column and the
+            Actual GFL time input on the timetable. Leave unticked for rolling-start races
+            and all non-race sessions.</li>
+        <li><span class="field-label">Pit stops</span> — Tick if pit stops are permitted. Shown
+            as an informational badge; does not affect timing calculations.</li>
+        <li><span class="field-label">Notes</span> — Optional notes about this session, visible
+            to all viewers.</li>
+    </ul>
+
+    <div class="callout callout-warn">
+        <p><strong>Planned start time for races:</strong> enter the time the race itself starts —
+        the moment the lights go out or the rolling start is triggered. The timetable
+        automatically subtracts the GFL minutes to show the advised formation lap start time,
+        and subtracts grid minutes from that to show the advised grid assembly time.</p>
+    </div>
+
+    <h3>Editing a session</h3>
+    <p>Click the <strong>Edit</strong> button on any session row in the session list. The form
+    populates with the session's current values. Make your changes and click
+    <strong>Save Session</strong>.</p>
+
+    <h3>Reordering sessions</h3>
+    <p>Use the <strong>▲</strong> and <strong>▼</strong> buttons on each session row to move it
+    up or down in the running order. The timetable always displays sessions in the order
+    shown here.</p>
+
+    <h3>Deleting a session</h3>
+    <p>Click the <strong>Delete</strong> button on the session row and confirm the prompt.
+    Deletion is immediate and cannot be undone.</p>
+
+    <h3>Deleting an event</h3>
+    <p>With the event selected, click <strong>Delete Event</strong> at the bottom of the event
+    form. This permanently removes the event and all of its sessions.</p>
+
+    <!-- ====================================================================
+         TIMING NOTES
+         ==================================================================== -->
+    <h2 id="timing">How the timetable uses these values</h2>
+
+    <p>Once sessions are saved, the timetable calculates:</p>
+
+    <ul>
+        <li><strong>Scheduled finish</strong> = planned start + duration</li>
+        <li><strong>Scheduled tidy time</strong> = gap between this session's scheduled finish
+            and the next session's planned start (the turnaround window)</li>
+        <li><strong>Advised GFL start</strong> = planned race start − GFL minutes
+            (race sessions with GFL only)</li>
+        <li><strong>Advised grid time</strong> = advised GFL start − grid minutes
+            (race sessions only; if no GFL, grid time = planned start − grid minutes)</li>
+    </ul>
+
+    <p>All predicted times cascade forward from actuals as the day progresses.
+    See the <a href="help-readonly.html">Timetable View Help</a> for a full explanation
+    of how predictions work.</p>
+
+</div>
+</body>
+</html>

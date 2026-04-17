@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<!--
+    circuits.html
+    ==========================================================================
+    Race Day Operations Timetable — Circuit & Layout Management
+
+    Manage circuits (venues), their curfew times, and layout configurations.
+    Each layout stores the estimated green flag / formation lap duration and
+    grid assembly time used by timetable calculations.
+
+    All write operations require the Ops PIN.
+    ==========================================================================
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circuits — Race Day Timetable</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- Header -->
+<div id="header-bar">
+    <h1>Race Day Timetable — Circuits &amp; Layouts</h1>
+    <a href="help-setup.html" class="btn btn-secondary" title="Help — setup &amp; admin">Help</a>
+    <a href="setup.html" class="btn btn-secondary" style="margin-left:auto">← Back to Setup</a>
+</div>
+
+<!-- Global alert -->
+<div id="setup-alert" class="alert hidden" style="margin:.5rem 1.2rem;margin-bottom:0"></div>
+
+<div class="page-content">
+
+    <!-- ====================================================================
+         Circuit management
+         ==================================================================== -->
+    <div class="card">
+        <div class="card-title">Circuit Management</div>
+        <p style="font-size:.85rem;color:var(--clr-text-muted);margin-bottom:.75rem">
+            Add circuits and their layouts.  Each layout has its own estimated
+            green flag / formation lap duration — this is used by the timetable
+            to compute total session block time and running variance.
+        </p>
+
+        <div id="circuit-alert" class="alert hidden" style="margin-bottom:.75rem"></div>
+
+        <!-- Add / edit circuit form -->
+        <fieldset style="border:1px solid var(--clr-border);border-radius:var(--radius);padding:.75rem;margin-bottom:1rem">
+            <legend style="font-size:.85rem;font-weight:600;color:var(--clr-primary);padding:0 .4rem">Add / Edit Circuit</legend>
+            <div class="form-row" style="align-items:flex-end">
+                <div class="form-group">
+                    <label for="circuit-name-input">Circuit Name *</label>
+                    <input type="text" id="circuit-name-input" placeholder="e.g. Brands Hatch">
+                </div>
+                <div class="form-group">
+                    <label for="circuit-curfew-input">Default Curfew *</label>
+                    <input type="time" id="circuit-curfew-input" placeholder="18:00">
+                </div>
+                <div style="padding-bottom:.25rem">
+                    <button id="circuit-save-btn" class="btn btn-primary">Save Circuit</button>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Inline layout add/edit form (shown when + Layout or Edit layout clicked) -->
+        <div id="layout-form" class="hidden"
+             style="background:var(--clr-primary-light);border:1px solid var(--clr-primary);border-radius:var(--radius);padding:.75rem;margin-bottom:1rem">
+            <div style="font-size:.85rem;font-weight:600;color:var(--clr-primary);margin-bottom:.5rem"
+                 id="layout-form-label">Add Layout</div>
+            <div class="form-row" style="align-items:flex-end">
+                <div class="form-group">
+                    <label for="layout-name-input">Layout Name *</label>
+                    <input type="text" id="layout-name-input"
+                        placeholder="e.g. Grand Prix, National, Indy">
+                </div>
+                <div class="form-group" style="max-width:180px">
+                    <label for="layout-gfl-input">
+                        Formation Lap (min) *
+                        <span style="font-weight:400;font-size:.76rem">green flag → race start</span>
+                    </label>
+                    <input type="number" id="layout-gfl-input" min="1" max="10" value="2"
+                           style="width:80px">
+                </div>
+                <div class="form-group" style="max-width:180px">
+                    <label for="layout-grid-input">
+                        Grid Assembly (min) *
+                        <span style="font-weight:400;font-size:.76rem">before GFL start</span>
+                    </label>
+                    <input type="number" id="layout-grid-input" min="1" max="30" value="5"
+                           style="width:80px">
+                </div>
+                <div style="padding-bottom:.25rem;display:flex;gap:.4rem">
+                    <button id="layout-save-btn"   class="btn btn-primary">Save Layout</button>
+                    <button id="layout-cancel-btn" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Circuit + layout list -->
+        <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:.87rem">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;padding:.4rem .5rem;background:var(--clr-primary-light);color:var(--clr-primary)">Circuit / Layout</th>
+                        <th style="text-align:left;padding:.4rem .5rem;background:var(--clr-primary-light);color:var(--clr-primary)">Formation lap / Grid</th>
+                        <th style="padding:.4rem .5rem;background:var(--clr-primary-light);color:var(--clr-primary)">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="circuit-list-body">
+                    <!-- Rows injected by circuits.js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div><!-- .page-content -->
+
+<script src="js/api.js"></script>
+<script src="js/circuits.js"></script>
+
+</body>
+</html>

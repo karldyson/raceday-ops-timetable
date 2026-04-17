@@ -1,0 +1,5 @@
+# Ignore the live config file that contains database credentials and the ops PIN.
+# Commit api/config.php.example (or document the required constants) instead.
+api/config.php
+
+*.log

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ops Mode Help — Race Day Timetable</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .help-body { max-width: 860px; margin: 0 auto; padding: 1.5rem 1.4rem 3rem; }
+        .help-nav { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid var(--clr-border); }
+        .help-nav a { font-size: .82rem; }
+        h2 { font-family: var(--font-display); font-size: 1.35rem; color: var(--clr-primary); margin: 2rem 0 .6rem; border-bottom: 1px solid var(--clr-border); padding-bottom: .35rem; }
+        h3 { font-size: 1rem; font-weight: 600; margin: 1.25rem 0 .4rem; color: var(--clr-primary-mid); }
+        p { margin-bottom: .75rem; line-height: 1.65; }
+        ul, ol { margin: .4rem 0 .75rem 1.4rem; }
+        li { margin-bottom: .35rem; line-height: 1.6; }
+        .callout { background: var(--clr-primary-light); border-left: 4px solid var(--clr-primary-mid); border-radius: 0 var(--radius) var(--radius) 0; padding: .7rem 1rem; margin: .75rem 0 1rem; }
+        .callout-warn { background: var(--clr-warning-bg); border-left-color: var(--clr-warning); }
+        .callout p { margin: 0; font-size: .9rem; }
+        .field-label { font-family: var(--font-mono); font-size: .82rem; background: var(--clr-border-light); border: 1px solid var(--clr-border); border-radius: 3px; padding: .1rem .4rem; white-space: nowrap; }
+        .intro-lead { font-size: 1.05rem; color: var(--clr-text-muted); margin-bottom: 1.5rem; border-bottom: 1px solid var(--clr-border); padding-bottom: 1.25rem; }
+        .status-chip { display: inline-block; font-family: var(--font-mono); font-size: .78rem; border-radius: 3px; padding: .1rem .45rem; border: 1px solid; margin-right: .3rem; }
+        .chip-pending   { background: var(--clr-border-light); border-color: var(--clr-border); color: var(--clr-text-muted); }
+        .chip-active    { background: rgba(34,197,94,.15); border-color: #16a34a; color: #166534; }
+        .chip-done      { background: rgba(100,116,139,.12); border-color: #94a3b8; color: #475569; }
+        .chip-redflag   { background: rgba(239,68,68,.15); border-color: #dc2626; color: #991b1b; }
+        .chip-cancelled { background: rgba(148,163,184,.12); border-color: #94a3b8; color: #64748b; }
+        .col-table { width: 100%; border-collapse: collapse; margin: .5rem 0 1rem; font-size: .88rem; }
+        .col-table th { text-align: left; background: var(--clr-primary); color: #fff; padding: .4rem .6rem; }
+        .col-table td { padding: .4rem .6rem; border-bottom: 1px solid var(--clr-border-light); vertical-align: top; }
+        .col-table tr:last-child td { border-bottom: none; }
+        .col-table td:first-child { font-family: var(--font-mono); font-size: .8rem; white-space: nowrap; }
+    </style>
+</head>
+<body>
+
+<div id="header-bar">
+    <h1>Ops Mode Help</h1>
+    <a href="/" class="btn btn-secondary" style="margin-left:auto">← Back to Timetable</a>
+</div>
+
+<div class="help-body">
+
+    <div class="help-nav">
+        <strong style="font-size:.82rem;align-self:center">Also:</strong>
+        <a href="help-readonly.html" class="btn btn-secondary btn-sm">Timetable View Help</a>
+        <a href="help-setup.html"   class="btn btn-secondary btn-sm">Setup &amp; Admin Help</a>
+    </div>
+
+    <p class="intro-lead">
+        Ops Mode unlocks the write controls on the timetable so the ops clerk
+        can record actual times as the day progresses. All other officials see
+        the same page in read-only mode — only the clerk's device needs to be
+        in Ops Mode.
+    </p>
+
+    <!-- ====================================================================
+         ACTIVATING OPS MODE
+         ==================================================================== -->
+    <h2 id="activate">Activating Ops Mode</h2>
+
+    <p>
+        Click the <strong>Ops Mode</strong> button in the controls bar at the
+        top of the timetable page. A PIN prompt will appear. Enter the four-digit
+        operations PIN and click <strong>Unlock</strong>. The button label
+        changes to <strong>Exit Ops</strong> and the timetable reveals the input
+        fields and action buttons for each session.
+    </p>
+
+    <div class="callout">
+        <p>The PIN is set in <span class="field-label">api/config.php</span> on
+        the server. It is the same PIN used for all write operations (setup,
+        session edits, actuals). Contact your system administrator if you do not
+        have the PIN.</p>
+    </div>
+
+    <h3>Auto-refresh behaviour</h3>
+    <p>
+        While Ops Mode is active the automatic 30-second page refresh is
+        <strong>paused</strong> to prevent the form from being wiped mid-entry.
+        The footer shows <em>Auto-refresh paused (Ops Mode)</em>. Refresh is
+        restored as soon as you exit Ops Mode.
+    </p>
+
+    <h3>Unsaved-changes banner</h3>
+    <p>
+        If you type into any field without saving, a yellow warning banner
+        appears at the top of the page: <em>Unsaved changes — auto-refresh
+        paused. Save or clear each row to resume.</em> This also suppresses
+        auto-refresh even outside of Ops Mode until every row has been saved
+        or cleared.
+    </p>
+
+    <!-- ====================================================================
+         ENTERING ACTUAL TIMES
+         ==================================================================== -->
+    <h2 id="actuals">Entering Actual Times</h2>
+
+    <p>
+        Each session row gains four time input fields in the <strong>Actual</strong>
+        column group once Ops Mode is active. Enter times in HH:MM format.
+        Fields that are not applicable to a session type are hidden.
+    </p>
+
+    <table class="col-table">
+        <thead><tr><th>Field</th><th>When to use</th></tr></thead>
+        <tbody>
+            <tr>
+                <td>Grid</td>
+                <td>The time cars were released from pit lane onto the assembly grid.
+                    Race sessions only. For reference and record-keeping; does not
+                    affect timetable predictions.</td>
+            </tr>
+            <tr>
+                <td>GFL</td>
+                <td>The time the green flag was shown / formation lap started.
+                    Only shown for sessions with a planned formation lap (GFL flag set).
+                    When entered, the predicted race start becomes GFL time + GFL minutes.</td>
+            </tr>
+            <tr>
+                <td>Start</td>
+                <td>Actual race or session start time — lights out (standing start) or
+                    rolling-start trigger. When entered, the status automatically changes
+                    to <span class="status-chip chip-active">Active</span> and the predicted
+                    start is anchored to this time.</td>
+            </tr>
+            <tr>
+                <td>Finish</td>
+                <td>Actual chequered flag time. When entered, the status automatically
+                    changes to <span class="status-chip chip-done">Done</span> and the
+                    predicted finish is anchored to this time, cascading updated predictions
+                    to all subsequent sessions.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>⏱ Now button</h3>
+    <p>
+        Each time input has a small clock icon (⏱) to its right. Clicking it
+        stamps the current time into that field. Use this for real-time logging —
+        glance at the track, click the button the moment the event occurs, then
+        save the row. You can still type over the value if you need to correct it.
+    </p>
+
+    <div class="callout callout-warn">
+        <p><strong>Always click Save after entering times.</strong> Fields are not
+        sent to the server until you click the <strong>Save</strong> button for
+        that row. The unsaved-changes banner reminds you if any row has unsaved
+        data.</p>
+    </div>
+
+    <!-- ====================================================================
+         STATUS
+         ==================================================================== -->
+    <h2 id="status">Session Status</h2>
+
+    <p>
+        In most circumstances you do <strong>not</strong> need to touch the
+        Status selector. The two most common transitions happen automatically:
+    </p>
+
+    <ul>
+        <li>Entering an <strong>actual start time</strong> and saving sets the
+            status to <span class="status-chip chip-active">Active</span>
+            automatically.</li>
+        <li>Entering an <strong>actual finish time</strong> and saving sets
+            the status to <span class="status-chip chip-done">Done</span>
+            automatically.</li>
+    </ul>
+
+    <p>Only set the status manually when something out of the ordinary occurs:</p>
+
+    <table class="col-table">
+        <thead><tr><th>Status</th><th>When to set manually</th></tr></thead>
+        <tbody>
+            <tr>
+                <td><span class="status-chip chip-redflag">Red Flag</span></td>
+                <td>The session has been stopped mid-race. The row is highlighted
+                    red. You can resume the session later by changing the status
+                    back or by entering new times.</td>
+            </tr>
+            <tr>
+                <td><span class="status-chip chip-cancelled">Cancelled</span></td>
+                <td>The session will not run at all. It is struck through on the
+                    timetable and removed from the prediction cascade — subsequent
+                    sessions shift forward by the cancelled session's duration.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="callout">
+        <p>
+            <span class="status-chip chip-pending">Pending</span> is the default
+            for any session that has not yet started — you never need to set this
+            manually. <span class="status-chip chip-active">Active</span> and
+            <span class="status-chip chip-done">Done</span> are set automatically
+            by saving an actual start or finish time respectively.
+        </p>
+    </div>
+
+    <!-- ====================================================================
+         OVERRIDES
+         ==================================================================== -->
+    <h2 id="overrides">Override Columns</h2>
+
+    <p>
+        The <strong>Override</strong> column group lets you adjust predictions
+        in real time without altering the original scheduled values, which remain
+        visible for comparison.
+    </p>
+
+    <h3>Duration override (Dur)</h3>
+    <p>
+        Enter a number of minutes to replace the session's scheduled duration for
+        all future finish-time predictions. Use this when a session is being
+        extended (e.g. extra laps declared) or shortened (e.g. cut due to time
+        pressure). Leave blank to use the scheduled duration.
+    </p>
+
+    <h3>Tidy override (Tidy)</h3>
+    <p>
+        Enter a number of minutes to replace the turnaround gap after this
+        session when cascading start predictions to the <em>next</em> session.
+        Use this when you know a grid or track condition is causing a delay beyond
+        the scheduled gap. Leave blank to use the scheduled gap.
+    </p>
+
+    <div class="callout">
+        <p>Overrides do not appear in the Scheduled columns — they appear only in
+        the Override columns, making it easy to see at a glance how actuals differ
+        from the original plan. Clear an override by deleting the value and
+        saving.</p>
+    </div>
+
+    <!-- ====================================================================
+         NOTES / WEATHER
+         ==================================================================== -->
+    <h2 id="notes">Notes &amp; Conditions</h2>
+
+    <p>
+        Each session row has a <strong>📝</strong> notes button (visible in Ops
+        Mode). Clicking it opens a small panel below the row with additional
+        recording fields:
+    </p>
+
+    <ul>
+        <li><strong>Track condition at finish</strong> — Dry or Wet. Recorded for
+            post-event analysis and the official results record.</li>
+        <li><strong>Weather notes</strong> — Free text for any relevant
+            observations: rainfall, safety car, red flag reasons, etc.</li>
+        <li><strong>Extra GFL</strong> — Tick if an additional formation lap was
+            required (e.g. after a false start or safety car restart). Recorded
+            for reference; does not affect timing calculations.</li>
+    </ul>
+
+    <!-- ====================================================================
+         SAVING
+         ==================================================================== -->
+    <h2 id="saving">Saving Changes</h2>
+
+    <p>
+        Each session row has its own <strong>Save</strong> button in the Ops
+        column. Clicking Save sends all fields for that row to the server in a
+        single update — times, overrides, status, and notes together.
+    </p>
+
+    <p>
+        If the save is successful the row refreshes immediately with the updated
+        predicted times and the unsaved-changes banner clears for that row.
+        If an error occurs an alert is shown — check your network connection and
+        try again.
+    </p>
+
+    <div class="callout callout-warn">
+        <p>Each row is saved independently. Saving one row does <strong>not</strong>
+        save changes in other rows. Work through the session list top to bottom
+        and save each row as you go.</p>
+    </div>
+
+    <!-- ====================================================================
+         EXITING OPS MODE
+         ==================================================================== -->
+    <h2 id="exit">Exiting Ops Mode</h2>
+
+    <p>
+        Click <strong>Exit Ops</strong> in the controls bar. The input fields
+        and action buttons are hidden, and the 30-second auto-refresh resumes.
+        Any unsaved changes in open rows will be lost, so save all rows before
+        exiting.
+    </p>
+
+    <p>
+        Other officials' devices are read-only and are never affected by
+        entering or exiting Ops Mode on the clerk's device.
+    </p>
+
+</div>
+</body>
+</html>
