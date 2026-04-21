@@ -60,7 +60,8 @@ try {
                 if (!$row) {
                     jsonResponse(['error' => 'Circuit not found'], 404);
                 }
-                $row['default_curfew_time'] = fmtTime($row['default_curfew_time']);
+                $row['default_curfew_time']  = fmtTime($row['default_curfew_time']);
+                $row['live_snatch_licensed'] = (bool)(int)$row['live_snatch_licensed'];
                 $layouts = fetchLayouts($id);
                 $row['layouts'] = $layouts[$id] ?? [];
                 jsonResponse($row);
@@ -70,7 +71,8 @@ try {
                 // Fetch all layouts in one query and merge in
                 $allLayouts = fetchLayouts();
                 foreach ($rows as &$r) {
-                    $r['default_curfew_time'] = fmtTime($r['default_curfew_time']);
+                    $r['default_curfew_time']  = fmtTime($r['default_curfew_time']);
+                    $r['live_snatch_licensed'] = (bool)(int)$r['live_snatch_licensed'];
                     $r['layouts'] = $allLayouts[(int)$r['id']] ?? [];
                 }
                 jsonResponse($rows);
@@ -80,18 +82,19 @@ try {
         // ------------------------------------------------------------------
         case 'POST':
             requirePin();
-            $body   = requestBody();
-            $name   = trim($body['name']                ?? '');
-            $curfew = trim($body['default_curfew_time'] ?? '');
+            $body          = requestBody();
+            $name          = trim($body['name']                ?? '');
+            $curfew        = trim($body['default_curfew_time'] ?? '');
+            $liveSnatch    = (int)(bool)($body['live_snatch_licensed'] ?? false);
             if ($name === '' || $curfew === '') {
                 jsonResponse(['error' => 'name and default_curfew_time are required'], 400);
             }
             $stmt = db()->prepare(
-                'INSERT INTO circuits (name, default_curfew_time) VALUES (?, ?)'
+                'INSERT INTO circuits (name, default_curfew_time, live_snatch_licensed) VALUES (?, ?, ?)'
             );
-            $stmt->execute([$name, $curfew]);
+            $stmt->execute([$name, $curfew, $liveSnatch]);
             $newId = (int)db()->lastInsertId();
-            jsonResponse(['id' => $newId, 'name' => $name, 'default_curfew_time' => $curfew, 'layouts' => []], 201);
+            jsonResponse(['id' => $newId, 'name' => $name, 'default_curfew_time' => $curfew, 'live_snatch_licensed' => (bool)$liveSnatch, 'layouts' => []], 201);
 
         // ------------------------------------------------------------------
         case 'PUT':
@@ -99,16 +102,17 @@ try {
             if (!$id) {
                 jsonResponse(['error' => 'id is required for PUT'], 400);
             }
-            $body   = requestBody();
-            $name   = trim($body['name']                ?? '');
-            $curfew = trim($body['default_curfew_time'] ?? '');
+            $body       = requestBody();
+            $name       = trim($body['name']                ?? '');
+            $curfew     = trim($body['default_curfew_time'] ?? '');
+            $liveSnatch = (int)(bool)($body['live_snatch_licensed'] ?? false);
             if ($name === '' || $curfew === '') {
                 jsonResponse(['error' => 'name and default_curfew_time are required'], 400);
             }
             $stmt = db()->prepare(
-                'UPDATE circuits SET name = ?, default_curfew_time = ? WHERE id = ?'
+                'UPDATE circuits SET name = ?, default_curfew_time = ?, live_snatch_licensed = ? WHERE id = ?'
             );
-            $stmt->execute([$name, $curfew, $id]);
+            $stmt->execute([$name, $curfew, $liveSnatch, $id]);
             jsonResponse(['success' => true]);
 
         // ------------------------------------------------------------------

@@ -93,6 +93,9 @@ try {
                                         : null;
         $has_green_flag_lap        = (int)(bool)($body['has_green_flag_lap'] ?? false);
         $has_pit_stops             = (int)(bool)($body['has_pit_stops']      ?? false);
+        $isNonRace = in_array($session_type, ['break', 'other'], true);
+        $has_safety_car            = $isNonRace ? 0 : (int)(bool)($body['has_safety_car']  ?? false);
+        $has_live_snatch           = $isNonRace ? 0 : (int)(bool)($body['has_live_snatch'] ?? false);
         $session_notes             = trim($body['session_notes'] ?? '') ?: null;
 
         if (!$series_name || !$session_type || !$planned_start || !$planned_duration_minutes) {
@@ -110,14 +113,16 @@ try {
             INSERT INTO sessions
               (event_id, sort_order, series_name, session_type, session_number,
                planned_start, planned_duration_minutes, start_type,
-               has_green_flag_lap, has_pit_stops, session_notes)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?)
+               has_green_flag_lap, has_pit_stops, has_safety_car, has_live_snatch,
+               session_notes)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
         ');
         $ins->execute([
             $req_event_id, $maxOrder + 10,
             $series_name, $session_type, $session_number,
             $planned_start, $planned_duration_minutes, $start_type,
-            $has_green_flag_lap, $has_pit_stops, $session_notes,
+            $has_green_flag_lap, $has_pit_stops, $has_safety_car, $has_live_snatch,
+            $session_notes,
         ]);
         jsonResponse(['id' => (int)db()->lastInsertId()], 201);
     }
@@ -196,6 +201,9 @@ try {
                                        : null;
         $has_green_flag_lap       = (int)(bool)($body['has_green_flag_lap'] ?? false);
         $has_pit_stops            = (int)(bool)($body['has_pit_stops']      ?? false);
+        $isNonRace2 = in_array($session_type, ['break', 'other'], true);
+        $has_safety_car           = $isNonRace2 ? 0 : (int)(bool)($body['has_safety_car']  ?? false);
+        $has_live_snatch          = $isNonRace2 ? 0 : (int)(bool)($body['has_live_snatch'] ?? false);
         $session_notes            = trim($body['session_notes'] ?? '') ?: null;
 
         if (!$series_name || !$session_type || !$planned_start || !$planned_duration_minutes) {
@@ -207,6 +215,7 @@ try {
                 series_name = ?, session_type = ?, session_number = ?,
                 planned_start = ?, planned_duration_minutes = ?,
                 start_type = ?, has_green_flag_lap = ?, has_pit_stops = ?,
+                has_safety_car = ?, has_live_snatch = ?,
                 session_notes = ?
             WHERE id = ?
         ');
@@ -214,6 +223,7 @@ try {
             $series_name, $session_type, $session_number,
             $planned_start, $planned_duration_minutes,
             $start_type, $has_green_flag_lap, $has_pit_stops,
+            $has_safety_car, $has_live_snatch,
             $session_notes, $id,
         ]);
         jsonResponse(['success' => true]);

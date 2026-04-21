@@ -18,10 +18,12 @@
 // ---------------------------------------------------------------------------
 // State
 // ---------------------------------------------------------------------------
-let currentEventId   = null;   // event currently being edited
-let currentSessions  = [];     // session array from last server fetch
-let editingSessionId = null;   // null = adding new, N = editing existing
-let circuits         = [];     // cached circuit list (with layouts)
+let currentEventId      = null;   // event currently being edited
+let currentSessions     = [];     // session array from last server fetch
+let editingSessionId    = null;   // null = adding new, N = editing existing
+let circuits            = [];     // cached circuit list (with layouts)
+let liveSnatchAvailable = false;  // whether the current event's circuit is LS-licensed
+let appConfig           = { sc_on_non_race: false };  // feature flags from server
 
 // ---------------------------------------------------------------------------
 // Entry point
@@ -31,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const urlEventId   = params.get('event') ? parseInt(params.get('event'), 10) : null;
 
     await ensurePin();
-    await Promise.all([loadCircuits(), loadEventList()]);
+    await Promise.all([loadCircuits(), loadEventList(), loadAppConfig()]);
 
     if (urlEventId) {
         selectEvent(urlEventId);
@@ -90,6 +92,17 @@ async function ensurePin() {
             return;
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// App config (feature flags)
+// ---------------------------------------------------------------------------
+
+async function loadAppConfig() {
+    try {
+        const res = await fetch('/api/app-config.php');
+        if (res.ok) appConfig = await res.json();
+    } catch (_) { /* use defaults */ }
 }
 
 // ---------------------------------------------------------------------------
@@ -195,6 +208,7 @@ async function selectEvent(id) {
     currentEventId = id;
     try {
         const event = await RDT.getEvent(id);
+        liveSnatchAvailable = !!event.live_snatch_licensed;
         await fillEventForm(event);
         currentSessions = event.sessions || [];
         renderSessionsTable(currentSessions, event.effective_gfl_minutes || 0);
@@ -309,7 +323,7 @@ function renderSessionsTable(sessions, gflMinutes) {
 
     if (!sessions.length) {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="9" style="text-align:center;color:var(--clr-text-muted);padding:1.5rem">No sessions yet — click "Add Session".</td>';
+        tr.innerHTML = '<td colspan="7" style="text-align:center;color:var(--clr-text-muted);padding:1.5rem">No sessions yet — click "Add Session".</td>';
         tbody.appendChild(tr);
         return;
     }
@@ -320,15 +334,30 @@ function renderSessionsTable(sessions, gflMinutes) {
         tr.dataset.sessionId = s.id;
 
         const isBreak = s.session_type === 'break';
+        const isOther = s.session_type === 'other';
+        const isRace  = s.session_type === 'race';
         if (!isBreak) rowNum++;
 
-        let startBadge;
-        if (isBreak || s.session_type !== 'race') {
-            startBadge = '—';
-        } else if (s.start_type === 'rolling') {
-            startBadge = '<span class="badge badge-rolling">R</span>';
-        } else {
-            startBadge = '<span class="badge badge-standing">S</span>';
+        // Build the badges cell — lit for enabled, dimmed for applicable-but-off
+        let badgesHtml = '';
+        if (!isBreak && !isOther) {
+            const b = (cls, label, active) =>
+                `<span class="badge ${active ? cls : 'badge-dim'}" title="${label}">${label}</span>`;
+
+            if (isRace) {
+                const isRolling = s.start_type === 'rolling';
+                badgesHtml += b('badge-rolling',  'R',   isRolling) + ' ';
+                badgesHtml += b('badge-standing', 'S',   !isRolling) + ' ';
+                badgesHtml += b('badge-yes',      'GFL', s.has_green_flag_lap) + ' ';
+            }
+            badgesHtml += b('badge-pits', 'Pit', s.has_pit_stops) + ' ';
+            if (isRace || appConfig.sc_on_non_race) {
+                badgesHtml += b('badge-sc', 'SC', s.has_safety_car) + ' ';
+            }
+            if (liveSnatchAvailable || s.has_live_snatch) {
+                badgesHtml += b('badge-ls', 'LS', s.has_live_snatch);
+            }
+            badgesHtml = badgesHtml.trim() || '—';
         }
 
         tr.innerHTML = `
@@ -337,9 +366,7 @@ function renderSessionsTable(sessions, gflMinutes) {
             <td>${escHtml(sessionLabel(s))}</td>
             <td class="mono">${s.planned_start}</td>
             <td>${s.planned_duration_minutes}'</td>
-            <td>${startBadge}</td>
-            <td>${isBreak ? '—' : (s.has_green_flag_lap ? '✓' : '—')}</td>
-            <td>${isBreak ? '—' : (s.has_pit_stops ? '✓' : '—')}</td>
+            <td style="white-space:nowrap">${badgesHtml}</td>
             <td class="col-actions" style="white-space:nowrap">
                 <button class="btn btn-sm btn-secondary btn-sess-up"   data-id="${s.id}" ${idx === 0 ? 'disabled' : ''}>▲</button>
                 <button class="btn btn-sm btn-secondary btn-sess-down" data-id="${s.id}" ${idx === sessions.length - 1 ? 'disabled' : ''}>▼</button>
@@ -429,6 +456,8 @@ async function openSessionModal(sessionId) {
         setValue('sess-starttype', s.start_type || 'standing');
         setCheck('sess-gfl',       s.has_green_flag_lap);
         setCheck('sess-pits',      s.has_pit_stops);
+        setCheck('sess-sc',        s.has_safety_car);
+        setCheck('sess-ls',        s.has_live_snatch);
         setValue('sess-notes',     s.session_notes || '');
     } else {
         // Adding new session
@@ -438,8 +467,10 @@ async function openSessionModal(sessionId) {
         setValue('sess-number',    getNextSessionNumber('race'));   // item 4: auto-increment
         setValue('sess-duration',  '20');
         setValue('sess-starttype', 'standing');
-        setCheck('sess-gfl',  true);   // item 3: GFL defaults to checked
+        setCheck('sess-gfl',  true);   // GFL defaults to checked for new race sessions
         setCheck('sess-pits', false);
+        setCheck('sess-sc',   true);   // SC defaults to checked where available
+        setCheck('sess-ls',   false);
     }
 
     updateSessionFormVisibility();
@@ -479,6 +510,24 @@ function updateSessionFormVisibility() {
     if (nonRaceRow) nonRaceRow.classList.toggle('hidden', isRace || isBreak || type === 'other');
     if (numGroup)   numGroup.classList.toggle('hidden',  isBreak);
 
+    // SC checkbox: race row is always visible for races; show in non-race row only if
+    // gfl_on_non_race config is true (and session is practice/qualifying)
+    const scNonRaceGroup = document.getElementById('sess-sc-nonrace-group');
+    if (scNonRaceGroup) {
+        scNonRaceGroup.classList.toggle('hidden',
+            isRace || isBreak || type === 'other' || !appConfig.sc_on_non_race);
+    }
+
+    // LS checkbox: race/practice/qualifying (not break/other), and only when LS-licensed
+    const lsGroup = document.getElementById('sess-ls-group');
+    if (lsGroup) lsGroup.classList.toggle('hidden', isBreak || type === 'other' || !liveSnatchAvailable);
+
+    // LS alt checkbox: non-race row equivalent, same conditions but only shown when non-race
+    const lsNonRaceGroup = document.getElementById('sess-ls-nonrace-group');
+    if (lsNonRaceGroup) {
+        lsNonRaceGroup.classList.toggle('hidden', isRace || isBreak || type === 'other' || !liveSnatchAvailable);
+    }
+
     // Update series placeholder to hint at the slot name for breaks
     const seriesInput = document.getElementById('sess-series');
     if (seriesInput) {
@@ -507,6 +556,8 @@ async function saveSession() {
         // GFL only applies to races; practice/qualifying never have a separate formation lap
         has_green_flag_lap:       sessionType === 'race' ? getCheck('sess-gfl') : false,
         has_pit_stops:            (isBreak || sessionType === 'other') ? false : getCheck('sess-pits'),
+        has_safety_car:           (isBreak || sessionType === 'other') ? false : getCheck('sess-sc'),
+        has_live_snatch:          (isBreak || sessionType === 'other') ? false : getCheck('sess-ls'),
         session_notes:            getValue('sess-notes').trim() || null,
     };
 

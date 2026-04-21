@@ -22,9 +22,12 @@ CREATE TABLE IF NOT EXISTS circuits (
   name                 VARCHAR(100)     NOT NULL,
   default_curfew_time  TIME             NOT NULL DEFAULT '18:00:00'
                                         COMMENT 'Default end-of-day curfew for this venue',
+  live_snatch_licensed TINYINT(1)       NOT NULL DEFAULT 0
+                                        COMMENT 'Whether this venue is licensed for live snatch starts',
   created_at           TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_circuit_name (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Migration: ALTER TABLE circuits ADD COLUMN live_snatch_licensed TINYINT(1) NOT NULL DEFAULT 0;
 
 -- =============================================================================
 -- circuit_layouts
@@ -116,6 +119,10 @@ CREATE TABLE IF NOT EXISTS sessions (
   has_green_flag_lap        TINYINT(1)      NOT NULL DEFAULT 0
                                             COMMENT 'Planned formation/green flag lap before the start',
   has_pit_stops             TINYINT(1)      NOT NULL DEFAULT 0,
+  has_safety_car            TINYINT(1)      NOT NULL DEFAULT 0
+                                            COMMENT 'Safety car deployed as part of session format',
+  has_live_snatch           TINYINT(1)      NOT NULL DEFAULT 0
+                                            COMMENT 'Live snatch start — race sessions only, venue must be licensed',
 
   -- Actual times (filled in by ops clerk during the event) ------------------
   actual_grid_time          TIME            DEFAULT NULL
@@ -142,6 +149,10 @@ CREATE TABLE IF NOT EXISTS sessions (
   created_at                TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
   updated_at                TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
                                             ON UPDATE CURRENT_TIMESTAMP,
+
+  -- Migrations:
+  -- ALTER TABLE sessions ADD COLUMN has_safety_car TINYINT(1) NOT NULL DEFAULT 0;
+  -- ALTER TABLE sessions ADD COLUMN has_live_snatch TINYINT(1) NOT NULL DEFAULT 0;
 
   FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE,
   INDEX idx_event_sort  (event_id, sort_order),

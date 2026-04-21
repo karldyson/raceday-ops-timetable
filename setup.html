@@ -154,9 +154,7 @@
                         <th>Session</th>
                         <th>Plan Start</th>
                         <th title="Race/session duration (not including formation lap) + GFL = total slot">Duration</th>
-                        <th title="Standing / Rolling — races only">S/R</th>
-                        <th title="Green flag / formation lap planned">GFL</th>
-                        <th title="Pit stops">Pits</th>
+                        <th title="Session format badges">Badges</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -251,6 +249,14 @@
                 <input type="checkbox" id="sess-pits">
                 <label for="sess-pits">Pit stops?</label>
             </div>
+            <div class="form-group checkbox" style="align-self:flex-end;padding-bottom:.5rem">
+                <input type="checkbox" id="sess-sc">
+                <label for="sess-sc">Safety car?</label>
+            </div>
+            <div class="form-group checkbox" style="align-self:flex-end;padding-bottom:.5rem" id="sess-ls-group">
+                <input type="checkbox" id="sess-ls">
+                <label for="sess-ls">Live snatch?</label>
+            </div>
         </div>
 
         <!-- For practice/qualifying: Pits only (no GFL — never applicable) -->
@@ -258,6 +264,14 @@
             <div class="form-group checkbox" style="align-self:flex-end;padding-bottom:.5rem">
                 <input type="checkbox" id="sess-pits-alt">
                 <label for="sess-pits-alt">Pit stops in this session</label>
+            </div>
+            <div class="form-group checkbox hidden" id="sess-sc-nonrace-group" style="align-self:flex-end;padding-bottom:.5rem">
+                <input type="checkbox" id="sess-sc-alt">
+                <label for="sess-sc-alt">Safety car?</label>
+            </div>
+            <div class="form-group checkbox hidden" id="sess-ls-nonrace-group" style="align-self:flex-end;padding-bottom:.5rem">
+                <input type="checkbox" id="sess-ls-alt">
+                <label for="sess-ls-alt">Live snatch?</label>
             </div>
         </div>
 
@@ -296,6 +310,8 @@
         }
     }
     syncCheckboxes('sess-pits', 'sess-pits-alt');
+    syncCheckboxes('sess-sc',   'sess-sc-alt');
+    syncCheckboxes('sess-ls',   'sess-ls-alt');
 })();
 </script>
 

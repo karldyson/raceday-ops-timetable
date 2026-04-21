@@ -66,6 +66,10 @@
         <li><span class="field-label">Default Curfew</span> — The time by which the final chequered flag
             must fall. This value is copied to each new event and can be adjusted per-event if a
             special late curfew has been agreed.</li>
+        <li><span class="field-label">Live snatch licensed?</span> — Tick if this venue is licensed
+            for live snatch starts. When ticked, a <strong>Live snatch?</strong> checkbox becomes
+            available on race sessions for events at this circuit, and an <strong>LS</strong> badge
+            is shown on those sessions in the timetable.</li>
     </ul>
 
     <div class="callout">
@@ -184,6 +188,15 @@
             and all non-race sessions.</li>
         <li><span class="field-label">Pit stops</span> — Tick if pit stops are permitted. Shown
             as an informational badge; does not affect timing calculations.</li>
+        <li><span class="field-label">Safety car?</span> — Tick if a safety car is part of the
+            planned session format (e.g. a mandatory SC period). Shows an <strong>SC</strong>
+            badge on the timetable. Available for race sessions by default; can be enabled for
+            practice and qualifying via the server configuration option
+            <span class="field-label">SC_ON_NON_RACE</span>.</li>
+        <li><span class="field-label">Live snatch?</span> — Tick if this session uses a live snatch
+            start procedure. Shows an <strong>LS</strong> badge on the timetable. Available for
+            race, practice, and qualifying sessions at circuits that have
+            <strong>Live snatch licensed?</strong> enabled.</li>
         <li><span class="field-label">Notes</span> — Optional notes about this session, visible
             to all viewers.</li>
     </ul>

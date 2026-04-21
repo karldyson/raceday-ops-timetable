@@ -39,7 +39,8 @@ try {
                         cl.grid_minutes,
                         cl.circuit_id,
                         c.name  AS circuit_name,
-                        c.default_curfew_time AS circuit_default_curfew
+                        c.default_curfew_time AS circuit_default_curfew,
+                        c.live_snatch_licensed
                     FROM   events e
                     JOIN   circuit_layouts cl ON cl.id = e.layout_id
                     JOIN   circuits c         ON c.id  = cl.circuit_id
@@ -52,6 +53,7 @@ try {
                 }
                 $event['curfew_time']            = fmtTime($event['curfew_time']);
                 $event['circuit_default_curfew'] = fmtTime($event['circuit_default_curfew']);
+                $event['live_snatch_licensed']   = (bool)(int)$event['live_snatch_licensed'];
                 // Effective values: event overrides take precedence over layout defaults
                 $event['effective_gfl_minutes']  = $event['gfl_minutes_override'] !== null
                     ? (int)$event['gfl_minutes_override']

@@ -24,3 +24,10 @@ define('DB_PASS', 'changeme');         // MySQL password
 // Viewers of the timetable never need it.
 // ---------------------------------------------------------------------------
 define('OPS_PIN', '1234');
+
+// ---------------------------------------------------------------------------
+// Feature flags
+// ---------------------------------------------------------------------------
+// Safety Car badge: when false (default), the SC checkbox is only shown for
+// race sessions.  Set to true to also offer it on practice and qualifying.
+define('SC_ON_NON_RACE', false);
