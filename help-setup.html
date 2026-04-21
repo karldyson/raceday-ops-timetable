@@ -156,12 +156,19 @@
         <li><span class="field-label">Series / Championship</span> — The name of the racing series,
             e.g. <em>Formula Ford 1600</em> or <em>Clio Cup</em>. For breaks, enter a descriptive
             name such as <em>Lunch</em>.</li>
-        <li><span class="field-label">Session Type</span> — Practice, Qualifying, Race, or
-            Break / Lunch. Break sessions are excluded from race numbering and do not show
-            advised grid or formation lap times.</li>
+        <li><span class="field-label">Session Type</span> — Practice, Qualifying, Race,
+            Break / Lunch, or Other.
+            <ul>
+                <li><strong>Break / Lunch</strong> — excluded from session numbering; no advised
+                    grid or formation lap times.</li>
+                <li><strong>Other</strong> — like a break (no grid transit, no formation lap, no pit
+                    stops) but <em>does</em> carry a session number. Use for parades, driver
+                    briefings, ceremonies, or any numbered non-racing slot.</li>
+            </ul>
+        </li>
         <li><span class="field-label">Type Number</span> — Distinguishes multiple sessions of the
-            same type for the same series. Session 1 = FP1 / Q1 / Race 1, session 2 = FP2 / Race 2,
-            and so on. Hidden for break sessions.</li>
+            same type for the same series. Session 1 = FP1 / Q1 / Race 1 / Other 1,
+            session 2 = FP2 / Race 2 / Other 2, and so on. Hidden for break sessions.</li>
         <li><span class="field-label">Planned Start</span> — The scheduled start time of the session.
             For race sessions this is the race start (lights out / rolling start trigger),
             <em>not</em> the formation lap start — the timetable works backwards from this time

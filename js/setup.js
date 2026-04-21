@@ -476,7 +476,7 @@ function updateSessionFormVisibility() {
     const numGroup   = document.getElementById('sess-number-group');
 
     if (raceRow)    raceRow.classList.toggle('hidden',  !isRace);
-    if (nonRaceRow) nonRaceRow.classList.toggle('hidden', isRace || isBreak);
+    if (nonRaceRow) nonRaceRow.classList.toggle('hidden', isRace || isBreak || type === 'other');
     if (numGroup)   numGroup.classList.toggle('hidden',  isBreak);
 
     // Update series placeholder to hint at the slot name for breaks
@@ -506,7 +506,7 @@ async function saveSession() {
         start_type:               (!isBreak && sessionType === 'race') ? getValue('sess-starttype') : null,
         // GFL only applies to races; practice/qualifying never have a separate formation lap
         has_green_flag_lap:       sessionType === 'race' ? getCheck('sess-gfl') : false,
-        has_pit_stops:            isBreak ? false : getCheck('sess-pits'),
+        has_pit_stops:            (isBreak || sessionType === 'other') ? false : getCheck('sess-pits'),
         session_notes:            getValue('sess-notes').trim() || null,
     };
 
@@ -553,6 +553,7 @@ async function deleteSession(id) {
 
 function sessionLabel(session) {
     if (session.session_type === 'break') return 'Break';
+    if (session.session_type === 'other') return 'Other' + (session.session_number || 1);
     const prefixes = { practice: 'FP', qualifying: 'Q', race: 'Race' };
     return `${prefixes[session.session_type] || session.session_type}${session.session_number}`;
 }
