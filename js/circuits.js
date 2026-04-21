@@ -70,10 +70,12 @@ function renderCircuitManagement(circuitList) {
             <td colspan="3" style="background:var(--clr-primary-light);padding:.4rem .75rem">
                 <strong>${escHtml(c.name)}</strong>
                 <span style="font-size:.8rem;color:var(--clr-text-muted)"> — curfew ${c.default_curfew_time}</span>
+                ${c.live_snatch_licensed ? '<span class="badge badge-ls" style="margin-left:.4rem" title="Live snatch licensed">LS</span>' : ''}
                 <span style="float:right;display:flex;gap:.4rem">
                     <button class="btn btn-sm btn-secondary btn-edit-circuit"
                             data-id="${c.id}" data-name="${escHtml(c.name)}"
-                            data-curfew="${c.default_curfew_time}">Edit Circuit</button>
+                            data-curfew="${c.default_curfew_time}"
+                            data-live-snatch="${c.live_snatch_licensed ? 'true' : 'false'}">Edit Circuit</button>
                     <button class="btn btn-sm btn-danger btn-del-circuit"
                             data-id="${c.id}">Delete</button>
                     <button class="btn btn-sm btn-primary btn-add-layout"
@@ -122,6 +124,7 @@ async function handleCircuitListClick(e) {
     if (btn.classList.contains('btn-edit-circuit')) {
         setValue('circuit-name-input',   btn.dataset.name);
         setValue('circuit-curfew-input', btn.dataset.curfew);
+        setCheck('circuit-live-snatch',  btn.dataset.liveSnatch === 'true');
         document.getElementById('circuit-save-btn').dataset.editId = btn.dataset.id;
         document.getElementById('circuit-name-input').focus();
     }
@@ -163,8 +166,9 @@ async function handleCircuitListClick(e) {
 }
 
 async function saveCircuit() {
-    const name   = getValue('circuit-name-input').trim();
-    const curfew = getValue('circuit-curfew-input').trim();
+    const name       = getValue('circuit-name-input').trim();
+    const curfew     = getValue('circuit-curfew-input').trim();
+    const liveSnatch = getCheck('circuit-live-snatch');
     if (!name || !curfew) {
         showAlert('circuit-alert', 'Circuit name and curfew time are required.', 'warning');
         return;
@@ -173,13 +177,14 @@ async function saveCircuit() {
     const editId = btn.dataset.editId;
     try {
         if (editId) {
-            await RDT.updateCircuit(editId, { name, default_curfew_time: curfew });
+            await RDT.updateCircuit(editId, { name, default_curfew_time: curfew, live_snatch_licensed: liveSnatch });
             delete btn.dataset.editId;
         } else {
-            await RDT.createCircuit({ name, default_curfew_time: curfew });
+            await RDT.createCircuit({ name, default_curfew_time: curfew, live_snatch_licensed: liveSnatch });
         }
         setValue('circuit-name-input', '');
         setValue('circuit-curfew-input', '');
+        setCheck('circuit-live-snatch', false);
         await loadCircuits();
         showAlert('circuit-alert', 'Circuit saved.', 'success');
     } catch (err) {
@@ -246,6 +251,8 @@ async function saveLayout() {
 // ---------------------------------------------------------------------------
 const getValue = id => (document.getElementById(id) || {}).value || '';
 const setValue = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+const getCheck = id => !!(document.getElementById(id) || {}).checked;
+const setCheck = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
 
 function escHtml(str) {
     if (!str) return '';

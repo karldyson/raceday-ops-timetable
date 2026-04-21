@@ -445,7 +445,7 @@ function buildSessionRow(session, rowNum) {
 
 function buildFlagsCell(session) {
     const el = document.createElement('td');
-    el.className = 'col-flags';
+    el.className = 'col-badges';
     if (session.session_type === 'break' || session.session_type === 'other') { el.textContent = ''; return el; }
     const parts = [];
     if (session.session_type === 'race') {
@@ -460,6 +460,12 @@ function buildFlagsCell(session) {
     }
     if (session.has_pit_stops) {
         parts.push('<span class="badge badge-pits" title="Pit stops">Pit</span>');
+    }
+    if (session.has_safety_car) {
+        parts.push('<span class="badge badge-sc" title="Safety car">SC</span>');
+    }
+    if (session.has_live_snatch) {
+        parts.push('<span class="badge badge-ls" title="Live snatch">LS</span>');
     }
     el.innerHTML = parts.length ? parts.join(' ') : '—';
     return el;

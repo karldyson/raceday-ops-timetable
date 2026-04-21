@@ -115,7 +115,7 @@ function normaliseSession(array $s): array
             $s[$col] = fmtTime($s[$col]);
         }
     }
-    foreach (['has_green_flag_lap', 'has_pit_stops', 'weather_extra_gfl'] as $col) {
+    foreach (['has_green_flag_lap', 'has_pit_stops', 'has_safety_car', 'has_live_snatch', 'weather_extra_gfl'] as $col) {
         if (array_key_exists($col, $s)) {
             $s[$col] = (bool)(int)$s[$col];
         }
