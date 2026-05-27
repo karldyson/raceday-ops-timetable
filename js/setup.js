@@ -556,7 +556,7 @@ async function saveSession() {
         // GFL only applies to races; practice/qualifying never have a separate formation lap
         has_green_flag_lap:       sessionType === 'race' ? getCheck('sess-gfl') : false,
         has_pit_stops:            (isBreak || sessionType === 'other') ? false : getCheck('sess-pits'),
-        has_safety_car:           (isBreak || sessionType === 'other') ? false : getCheck('sess-sc'),
+        has_safety_car:           (sessionType === 'race' || appConfig.sc_on_non_race) && !isBreak && sessionType !== 'other' ? getCheck('sess-sc') : false,
         has_live_snatch:          (isBreak || sessionType === 'other') ? false : getCheck('sess-ls'),
         session_notes:            getValue('sess-notes').trim() || null,
     };
