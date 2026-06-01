@@ -95,11 +95,11 @@ CREATE TABLE IF NOT EXISTS sessions (
   -- Identity -----------------------------------------------------------------
   series_name               VARCHAR(100)    NOT NULL
                                             COMMENT 'e.g. Formula Ford, Clio Cup',
-  session_type              ENUM('practice','qualifying','race','break','other')
+  session_type              ENUM('practice','qualifying','race','break','other','warmup')
                                             NOT NULL,
                                             -- Migration for existing installations:
                                             -- ALTER TABLE sessions MODIFY COLUMN session_type
-                                            --   ENUM('practice','qualifying','race','break','other') NOT NULL;
+                                            --   ENUM('practice','qualifying','race','break','other','warmup') NOT NULL;
   session_number            TINYINT UNSIGNED NOT NULL DEFAULT 1
                                             COMMENT 'Distinguishes FP1/FP2, Race 1/Race 2 etc.',
 
