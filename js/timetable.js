@@ -446,7 +446,7 @@ function buildSessionRow(session, rowNum) {
 function buildFlagsCell(session) {
     const el = document.createElement('td');
     el.className = 'col-badges';
-    if (session.session_type === 'break' || session.session_type === 'other') { el.textContent = ''; return el; }
+    if (session.session_type === 'break' || session.session_type === 'other' || session.session_type === 'warmup') { el.textContent = ''; return el; }
     const parts = [];
     if (session.session_type === 'race') {
         if (session.start_type === 'rolling') {
@@ -967,8 +967,9 @@ function statusChip(session) {
 }
 
 function sessionLabel(session) {
-    if (session.session_type === 'break') return '';
-    if (session.session_type === 'other') return 'Other' + (session.session_number || 1);
+    if (session.session_type === 'break')  return '';
+    if (session.session_type === 'other')  return 'Other'  + (session.session_number || 1);
+    if (session.session_type === 'warmup') return 'WU' + (session.session_number || 1);
     const prefixes = { practice: 'FP', qualifying: 'Q', race: 'Race' };
     return `${prefixes[session.session_type] || session.session_type}${session.session_number}`;
 }

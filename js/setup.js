@@ -333,14 +333,14 @@ function renderSessionsTable(sessions, gflMinutes) {
         const tr = document.createElement('tr');
         tr.dataset.sessionId = s.id;
 
-        const isBreak = s.session_type === 'break';
-        const isOther = s.session_type === 'other';
-        const isRace  = s.session_type === 'race';
+        const isBreak    = s.session_type === 'break';
+        const isOtherLike = s.session_type === 'other' || s.session_type === 'warmup';
+        const isRace     = s.session_type === 'race';
         if (!isBreak) rowNum++;
 
         // Build the badges cell — lit for enabled, dimmed for applicable-but-off
         let badgesHtml = '';
-        if (!isBreak && !isOther) {
+        if (!isBreak && !isOtherLike) {
             const b = (cls, label, active) =>
                 `<span class="badge ${active ? cls : 'badge-dim'}" title="${label}">${label}</span>`;
 
@@ -506,26 +506,28 @@ function updateSessionFormVisibility() {
     const nonRaceRow = document.getElementById('sess-nonstarttype-row');
     const numGroup   = document.getElementById('sess-number-group');
 
+    const isOtherLike = type === 'other' || type === 'warmup';
+
     if (raceRow)    raceRow.classList.toggle('hidden',  !isRace);
-    if (nonRaceRow) nonRaceRow.classList.toggle('hidden', isRace || isBreak || type === 'other');
+    if (nonRaceRow) nonRaceRow.classList.toggle('hidden', isRace || isBreak || isOtherLike);
     if (numGroup)   numGroup.classList.toggle('hidden',  isBreak);
 
     // SC checkbox: race row is always visible for races; show in non-race row only if
-    // gfl_on_non_race config is true (and session is practice/qualifying)
+    // sc_on_non_race config is true (and session is practice/qualifying)
     const scNonRaceGroup = document.getElementById('sess-sc-nonrace-group');
     if (scNonRaceGroup) {
         scNonRaceGroup.classList.toggle('hidden',
-            isRace || isBreak || type === 'other' || !appConfig.sc_on_non_race);
+            isRace || isBreak || isOtherLike || !appConfig.sc_on_non_race);
     }
 
-    // LS checkbox: race/practice/qualifying (not break/other), and only when LS-licensed
+    // LS checkbox: race/practice/qualifying (not break/other/warmup), and only when LS-licensed
     const lsGroup = document.getElementById('sess-ls-group');
-    if (lsGroup) lsGroup.classList.toggle('hidden', isBreak || type === 'other' || !liveSnatchAvailable);
+    if (lsGroup) lsGroup.classList.toggle('hidden', isBreak || isOtherLike || !liveSnatchAvailable);
 
     // LS alt checkbox: non-race row equivalent, same conditions but only shown when non-race
     const lsNonRaceGroup = document.getElementById('sess-ls-nonrace-group');
     if (lsNonRaceGroup) {
-        lsNonRaceGroup.classList.toggle('hidden', isRace || isBreak || type === 'other' || !liveSnatchAvailable);
+        lsNonRaceGroup.classList.toggle('hidden', isRace || isBreak || isOtherLike || !liveSnatchAvailable);
     }
 
     // Update series placeholder to hint at the slot name for breaks
@@ -540,7 +542,8 @@ function updateSessionFormVisibility() {
 
 async function saveSession() {
     const sessionType = getValue('sess-type');
-    const isBreak = sessionType === 'break';
+    const isBreak     = sessionType === 'break';
+    const isOtherLike = sessionType === 'other' || sessionType === 'warmup';
 
     const seriesName = getValue('sess-series').trim() || (isBreak ? 'Break' : '');
 
@@ -555,9 +558,9 @@ async function saveSession() {
         start_type:               (!isBreak && sessionType === 'race') ? getValue('sess-starttype') : null,
         // GFL only applies to races; practice/qualifying never have a separate formation lap
         has_green_flag_lap:       sessionType === 'race' ? getCheck('sess-gfl') : false,
-        has_pit_stops:            (isBreak || sessionType === 'other') ? false : getCheck('sess-pits'),
-        has_safety_car:           (sessionType === 'race' || appConfig.sc_on_non_race) && !isBreak && sessionType !== 'other' ? getCheck('sess-sc') : false,
-        has_live_snatch:          (isBreak || sessionType === 'other') ? false : getCheck('sess-ls'),
+        has_pit_stops:            (isBreak || isOtherLike) ? false : getCheck('sess-pits'),
+        has_safety_car:           (sessionType === 'race' || appConfig.sc_on_non_race) && !isBreak && !isOtherLike ? getCheck('sess-sc') : false,
+        has_live_snatch:          (isBreak || isOtherLike) ? false : getCheck('sess-ls'),
         session_notes:            getValue('sess-notes').trim() || null,
     };
 
@@ -603,8 +606,9 @@ async function deleteSession(id) {
 // ---------------------------------------------------------------------------
 
 function sessionLabel(session) {
-    if (session.session_type === 'break') return 'Break';
-    if (session.session_type === 'other') return 'Other' + (session.session_number || 1);
+    if (session.session_type === 'break')  return 'Break';
+    if (session.session_type === 'other')  return 'Other'  + (session.session_number || 1);
+    if (session.session_type === 'warmup') return 'WU' + (session.session_number || 1);
     const prefixes = { practice: 'FP', qualifying: 'Q', race: 'Race' };
     return `${prefixes[session.session_type] || session.session_type}${session.session_number}`;
 }

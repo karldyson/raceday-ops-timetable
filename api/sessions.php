@@ -93,8 +93,8 @@ try {
                                         : null;
         $has_green_flag_lap        = (int)(bool)($body['has_green_flag_lap'] ?? false);
         $has_pit_stops             = (int)(bool)($body['has_pit_stops']      ?? false);
-        $isNonRace  = in_array($session_type, ['break', 'other'], true);
-        $scAllowed  = ($session_type === 'race') || (defined('SC_ON_NON_RACE') && SC_ON_NON_RACE);
+        $isNonRace  = in_array($session_type, ['break', 'other', 'warmup'], true);
+        $scAllowed  = !$isNonRace && (($session_type === 'race') || (defined('SC_ON_NON_RACE') && SC_ON_NON_RACE));
         $has_safety_car            = $scAllowed  ? (int)(bool)($body['has_safety_car']  ?? false) : 0;
         $has_live_snatch           = $isNonRace  ? 0 : (int)(bool)($body['has_live_snatch'] ?? false);
         $session_notes             = trim($body['session_notes'] ?? '') ?: null;
@@ -202,8 +202,8 @@ try {
                                        : null;
         $has_green_flag_lap       = (int)(bool)($body['has_green_flag_lap'] ?? false);
         $has_pit_stops            = (int)(bool)($body['has_pit_stops']      ?? false);
-        $isNonRace2 = in_array($session_type, ['break', 'other'], true);
-        $scAllowed2 = ($session_type === 'race') || (defined('SC_ON_NON_RACE') && SC_ON_NON_RACE);
+        $isNonRace2 = in_array($session_type, ['break', 'other', 'warmup'], true);
+        $scAllowed2 = !$isNonRace2 && (($session_type === 'race') || (defined('SC_ON_NON_RACE') && SC_ON_NON_RACE));
         $has_safety_car           = $scAllowed2 ? (int)(bool)($body['has_safety_car']  ?? false) : 0;
         $has_live_snatch          = $isNonRace2 ? 0 : (int)(bool)($body['has_live_snatch'] ?? false);
         $session_notes            = trim($body['session_notes'] ?? '') ?: null;
